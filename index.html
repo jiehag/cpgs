@@ -74,6 +74,26 @@
             display: inline-block;
         }
         
+        /* 按钮容器 - 全屏时隐藏 */
+        .header-buttons {
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3px;
+            justify-content: center;
+            transition: opacity 0.3s, max-height 0.3s;
+            overflow: hidden;
+            max-height: 40px;
+            opacity: 1;
+        }
+        
+        /* 全屏时隐藏按钮行 */
+        body.fullscreen .header-buttons {
+            max-height: 0;
+            opacity: 0;
+            margin-top: 0;
+        }
+        
         .buttons {
             padding: 6px 10px;
             background: #f8f8f8;
@@ -128,6 +148,13 @@
             overflow-x: auto;
             flex: 1;
             min-height: 300px;
+            transition: max-height 0.3s;
+        }
+        
+        /* 全屏时增加菜单容器高度 */
+        body.fullscreen .menu-container {
+            max-height: calc(100vh - 100px) !important;
+            padding: 15px;
         }
         
         .menu-grid {
@@ -135,6 +162,12 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             min-width: 800px;
+        }
+        
+        /* 全屏时增加分类列的高度 */
+        body.fullscreen .category-column {
+            max-height: calc(100vh - 180px) !important;
+            min-height: calc(100vh - 220px) !important;
         }
         
         .category-column {
@@ -504,6 +537,17 @@
                 max-width: 95%;
                 padding: 12px;
             }
+            
+            /* 手机端全屏调整 */
+            body.fullscreen .menu-container {
+                max-height: calc(100vh - 80px) !important;
+                padding: 10px;
+            }
+            
+            body.fullscreen .category-column {
+                max-height: calc(100vh - 150px) !important;
+                min-height: calc(100vh - 180px) !important;
+            }
         }
         
         /* 超小屏幕处理 */
@@ -583,11 +627,11 @@
         <div class="header">
             <h1 class="title">餐厅菜单公示栏</h1>
             <div class="date-display" id="current-date">正在加载...</div>
-            <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;">
+            <div class="header-buttons">
                 <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
                 <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
                 <button class="btn" onclick="showUpdateModal()">更新菜单</button>
-                <button class="btn" onclick="toggleFullscreen()">全屏显示</button>
+                <button class="btn" id="fullscreen-btn" onclick="toggleFullscreen()">全屏显示</button>
             </div>
         </div>
         
@@ -824,6 +868,7 @@
         var lanPathInput = document.getElementById('lan-path');
         var recentFilesList = document.getElementById('recent-files-list');
         var noRecentFiles = document.getElementById('no-recent-files');
+        var fullscreenBtn = document.getElementById('fullscreen-btn');
         
         // ===== 基本工具函数 =====
         function showMessage(text, type) {
@@ -897,7 +942,7 @@
             }
         }
         
-        // ===== 修复全屏功能 - 显示整个页面 =====
+        // ===== 全屏功能 - 隐藏按钮行，增加菜单空间 =====
         function toggleFullscreen() {
             if (!isFullscreen) {
                 enterFullscreen();
@@ -907,9 +952,12 @@
         }
         
         function enterFullscreen() {
+            // 首先给body添加全屏类
+            document.body.classList.add('fullscreen');
+            
             var container = document.querySelector('.container');
             
-            // 首先确保body有正确的高度
+            // 确保body有正确的高度
             document.body.style.height = '100vh';
             document.body.style.display = 'flex';
             document.body.style.flexDirection = 'column';
@@ -923,6 +971,7 @@
                 }).catch(function(err) {
                     console.log('全屏错误:', err);
                     showMessage('全屏请求被拒绝: ' + err.message, 'error');
+                    document.body.classList.remove('fullscreen');
                 });
             } else if (document.body.webkitRequestFullscreen) { /* Safari */
                 document.body.webkitRequestFullscreen();
@@ -955,7 +1004,7 @@
                 document.querySelector('.container').style.margin = '0';
                 document.querySelector('.container').style.borderRadius = '0';
                 document.querySelector('.container').style.height = '100vh';
-                document.querySelector('.menu-container').style.maxHeight = 'calc(100vh - 150px)';
+                document.querySelector('.menu-container').style.maxHeight = 'calc(100vh - 100px)';
                 
                 isFullscreen = true;
                 updateFullscreenButton();
@@ -964,6 +1013,9 @@
         }
         
         function exitFullscreen() {
+            // 移除全屏类
+            document.body.classList.remove('fullscreen');
+            
             if (document.exitFullscreen) {
                 document.exitFullscreen().then(function() {
                     isFullscreen = false;
@@ -1017,7 +1069,6 @@
         }
         
         function updateFullscreenButton() {
-            var fullscreenBtn = document.querySelector('[onclick="toggleFullscreen()"]');
             if (fullscreenBtn) {
                 if (isFullscreen) {
                     fullscreenBtn.textContent = '退出全屏';
@@ -1032,34 +1083,46 @@
         // 监听全屏变化事件
         document.addEventListener('fullscreenchange', function() {
             isFullscreen = !!document.fullscreenElement;
-            updateFullscreenButton();
-            if (!isFullscreen) {
+            if (isFullscreen) {
+                document.body.classList.add('fullscreen');
+            } else {
+                document.body.classList.remove('fullscreen');
                 resetFullscreenStyles();
             }
+            updateFullscreenButton();
         });
         
         document.addEventListener('webkitfullscreenchange', function() {
             isFullscreen = !!document.webkitFullscreenElement;
-            updateFullscreenButton();
-            if (!isFullscreen) {
+            if (isFullscreen) {
+                document.body.classList.add('fullscreen');
+            } else {
+                document.body.classList.remove('fullscreen');
                 resetFullscreenStyles();
             }
+            updateFullscreenButton();
         });
         
         document.addEventListener('mozfullscreenchange', function() {
             isFullscreen = !!document.mozFullScreenElement;
-            updateFullscreenButton();
-            if (!isFullscreen) {
+            if (isFullscreen) {
+                document.body.classList.add('fullscreen');
+            } else {
+                document.body.classList.remove('fullscreen');
                 resetFullscreenStyles();
             }
+            updateFullscreenButton();
         });
         
         document.addEventListener('MSFullscreenChange', function() {
             isFullscreen = !!document.msFullscreenElement;
-            updateFullscreenButton();
-            if (!isFullscreen) {
+            if (isFullscreen) {
+                document.body.classList.add('fullscreen');
+            } else {
+                document.body.classList.remove('fullscreen');
                 resetFullscreenStyles();
             }
+            updateFullscreenButton();
         });
         
         // ===== 数据管理 =====
