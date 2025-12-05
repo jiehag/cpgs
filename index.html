@@ -9,13 +9,38 @@
             box-sizing: border-box;
         }
         
+        html, body {
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+            height: 100%;
+        }
+        
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
             padding: 10px;
-            background: #f0f0f0;
             -webkit-tap-highlight-color: transparent;
-            min-width: 800px; /* 强制最小宽度 */
+            min-width: 800px;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        /* 全屏时的样式 */
+        :fullscreen {
+            background: #f0f0f0;
+        }
+        
+        :-webkit-full-screen {
+            background: #f0f0f0;
+        }
+        
+        :-moz-full-screen {
+            background: #f0f0f0;
+        }
+        
+        :-ms-fullscreen {
+            background: #f0f0f0;
         }
         
         .container {
@@ -24,6 +49,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
             margin-bottom: 20px;
+            flex: 1;
         }
         
         .header {
@@ -92,14 +118,15 @@
         .menu-container {
             padding: 15px;
             width: 100%;
-            overflow-x: auto; /* 允许水平滚动 */
+            overflow-x: auto;
+            flex: 1;
         }
         
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr); /* 强制4列 */
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            min-width: 800px; /* 确保网格最小宽度 */
+            min-width: 800px;
         }
         
         .category-column {
@@ -331,7 +358,7 @@
             
             .menu-grid {
                 gap: 8px;
-                min-width: 600px; /* 在小屏幕上保持最小宽度 */
+                min-width: 600px;
             }
             
             .category-column {
@@ -456,7 +483,7 @@
                 <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
                 <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
                 <button class="btn" onclick="showOnlineUpdate()">在线更新</button>
-                <button class="btn" onclick="requestFullscreen()">全屏显示</button>
+                <button class="btn" onclick="toggleFullscreen()">全屏显示</button>
             </div>
         </div>
         
@@ -571,6 +598,7 @@
         var menuData = {};
         var isAdmin = false;
         var currentDate = "";
+        var isFullscreen = false;
         
         // ===== 定义固定的四个分类 =====
         var FIXED_CATEGORIES = ["主菜", "素菜", "主食", "汤品"];
@@ -632,25 +660,170 @@
             return dateStr + ' 星期' + weekdays[date.getDay()];
         }
         
-        // ===== 修复安卓全屏功能 =====
-        function requestFullscreen() {
-            var elem = document.documentElement;
-            
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen().catch(function(err) {
-                    console.log('全屏错误:', err);
-                    showMessage('全屏请求被拒绝', 'error');
-                });
-            } else if (elem.webkitRequestFullscreen) { /* Safari */
-                elem.webkitRequestFullscreen();
-            } else if (elem.msRequestFullscreen) { /* IE11 */
-                elem.msRequestFullscreen();
-            } else if (elem.mozRequestFullScreen) { /* Firefox */
-                elem.mozRequestFullScreen();
+        // ===== 修复全屏功能 - 显示整个页面 =====
+        function toggleFullscreen() {
+            if (!isFullscreen) {
+                enterFullscreen();
             } else {
-                showMessage('此浏览器不支持全屏功能', 'error');
+                exitFullscreen();
             }
         }
+        
+        function enterFullscreen() {
+            var container = document.querySelector('.container');
+            
+            // 首先确保body有正确的高度
+            document.body.style.height = '100vh';
+            document.body.style.display = 'flex';
+            document.body.style.flexDirection = 'column';
+            
+            // 尝试让整个body进入全屏
+            if (document.body.requestFullscreen) {
+                document.body.requestFullscreen().then(function() {
+                    isFullscreen = true;
+                    updateFullscreenButton();
+                    showMessage('已进入全屏模式', 'info');
+                }).catch(function(err) {
+                    console.log('全屏错误:', err);
+                    showMessage('全屏请求被拒绝: ' + err.message, 'error');
+                });
+            } else if (document.body.webkitRequestFullscreen) { /* Safari */
+                document.body.webkitRequestFullscreen();
+                isFullscreen = true;
+                updateFullscreenButton();
+                showMessage('已进入全屏模式', 'info');
+            } else if (document.body.msRequestFullscreen) { /* IE11 */
+                document.body.msRequestFullscreen();
+                isFullscreen = true;
+                updateFullscreenButton();
+                showMessage('已进入全屏模式', 'info');
+            } else if (document.body.mozRequestFullScreen) { /* Firefox */
+                document.body.mozRequestFullScreen();
+                isFullscreen = true;
+                updateFullscreenButton();
+                showMessage('已进入全屏模式', 'info');
+            } else {
+                // 备用方案：使用CSS模拟全屏
+                document.body.style.position = 'fixed';
+                document.body.style.top = '0';
+                document.body.style.left = '0';
+                document.body.style.width = '100%';
+                document.body.style.height = '100%';
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                document.body.style.zIndex = '9999';
+                document.body.style.background = '#f0f0f0';
+                document.body.style.overflow = 'auto';
+                
+                document.querySelector('.container').style.margin = '0';
+                document.querySelector('.container').style.borderRadius = '0';
+                document.querySelector('.container').style.height = '100vh';
+                document.querySelector('.menu-container').style.maxHeight = 'calc(100vh - 200px)';
+                
+                isFullscreen = true;
+                updateFullscreenButton();
+                showMessage('已进入模拟全屏模式', 'info');
+            }
+        }
+        
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen().then(function() {
+                    isFullscreen = false;
+                    updateFullscreenButton();
+                    resetFullscreenStyles();
+                    showMessage('已退出全屏模式', 'info');
+                });
+            } else if (document.webkitExitFullscreen) { /* Safari */
+                document.webkitExitFullscreen();
+                isFullscreen = false;
+                updateFullscreenButton();
+                resetFullscreenStyles();
+                showMessage('已退出全屏模式', 'info');
+            } else if (document.msExitFullscreen) { /* IE11 */
+                document.msExitFullscreen();
+                isFullscreen = false;
+                updateFullscreenButton();
+                resetFullscreenStyles();
+                showMessage('已退出全屏模式', 'info');
+            } else if (document.mozCancelFullScreen) { /* Firefox */
+                document.mozCancelFullScreen();
+                isFullscreen = false;
+                updateFullscreenButton();
+                resetFullscreenStyles();
+                showMessage('已退出全屏模式', 'info');
+            } else {
+                // 恢复备用方案的样式
+                resetFullscreenStyles();
+                isFullscreen = false;
+                updateFullscreenButton();
+                showMessage('已退出全屏模式', 'info');
+            }
+        }
+        
+        function resetFullscreenStyles() {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.left = '';
+            document.body.style.width = '';
+            document.body.style.height = '';
+            document.body.style.margin = '';
+            document.body.style.padding = '10px';
+            document.body.style.zIndex = '';
+            document.body.style.background = '';
+            document.body.style.overflow = '';
+            
+            document.querySelector('.container').style.margin = '';
+            document.querySelector('.container').style.borderRadius = '';
+            document.querySelector('.container').style.height = '';
+            document.querySelector('.menu-container').style.maxHeight = '';
+        }
+        
+        function updateFullscreenButton() {
+            var fullscreenBtn = document.querySelector('[onclick="toggleFullscreen()"]');
+            if (fullscreenBtn) {
+                if (isFullscreen) {
+                    fullscreenBtn.textContent = '退出全屏';
+                    fullscreenBtn.style.background = '#e74c3c';
+                } else {
+                    fullscreenBtn.textContent = '全屏显示';
+                    fullscreenBtn.style.background = '#4a90e2';
+                }
+            }
+        }
+        
+        // 监听全屏变化事件
+        document.addEventListener('fullscreenchange', function() {
+            isFullscreen = !!document.fullscreenElement;
+            updateFullscreenButton();
+            if (!isFullscreen) {
+                resetFullscreenStyles();
+            }
+        });
+        
+        document.addEventListener('webkitfullscreenchange', function() {
+            isFullscreen = !!document.webkitFullscreenElement;
+            updateFullscreenButton();
+            if (!isFullscreen) {
+                resetFullscreenStyles();
+            }
+        });
+        
+        document.addEventListener('mozfullscreenchange', function() {
+            isFullscreen = !!document.mozFullScreenElement;
+            updateFullscreenButton();
+            if (!isFullscreen) {
+                resetFullscreenStyles();
+            }
+        });
+        
+        document.addEventListener('MSFullscreenChange', function() {
+            isFullscreen = !!document.msFullscreenElement;
+            updateFullscreenButton();
+            if (!isFullscreen) {
+                resetFullscreenStyles();
+            }
+        });
         
         // ===== 数据管理 =====
         function loadData() {
