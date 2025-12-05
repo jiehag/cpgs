@@ -8,7 +8,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 10px;
+            padding: 5px;
             background: #f0f0f0;
         }
         
@@ -17,72 +17,143 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
-            margin-bottom: 20px;
         }
         
+        /* 顶部头部区域 - 压缩高度 */
         .header {
             background: #ff6b6b;
             color: white;
-            padding: 15px;
-            text-align: center;
+            padding: 8px 15px;
+            position: relative;
+            min-height: 80px;
+        }
+        
+        .header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 5px;
+        }
+        
+        .title-area {
+            flex: 1;
         }
         
         .title {
-            font-size: 1.5rem;
-            margin: 0 0 5px 0;
+            font-size: 1.3rem;
+            margin: 0 0 3px 0;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            font-size: 0.8rem;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        /* 右上角按钮区域 */
+        .header-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            min-width: 180px;
+        }
+        
+        .header-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            white-space: nowrap;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* 日期显示区域 - 居中显示 */
+        .date-area {
+            text-align: center;
+            margin-top: 5px;
         }
         
         .date-display {
             font-size: 0.9rem;
-            margin: 10px 0;
             background: rgba(255,255,255,0.2);
-            padding: 5px 10px;
+            padding: 4px 12px;
             border-radius: 15px;
             display: inline-block;
         }
         
-        .buttons {
-            padding: 10px;
+        /* 管理员控制区域 */
+        #admin-controls {
+            display: none;
             background: #f8f8f8;
+            padding: 8px;
             border-bottom: 1px solid #ddd;
-            text-align: center;
         }
         
-        .btn {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            margin: 2px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.9rem;
+        .admin-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            justify-content: center;
         }
         
         .admin-btn {
-            background: #e74c3c;
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            margin: 1px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
         }
         
-        .online-btn {
-            background: #1abc9c;
-        }
-        
-        .export-btn {
+        .admin-btn.export {
             background: #50c878;
         }
         
-        .print-btn {
+        .admin-btn.online {
+            background: #1abc9c;
+        }
+        
+        .admin-btn.print {
             background: #e67e22;
         }
         
+        .admin-btn.settings {
+            background: #95a5a6;
+        }
+        
+        /* 菜单容器 - 水平排列分类 */
         .menu-container {
-            padding: 15px;
-            max-height: 400px;
+            padding: 10px;
+            max-height: calc(100vh - 160px);
             overflow-y: auto;
         }
         
-        .category {
-            margin-bottom: 20px;
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .category-column {
+            flex: 1;
+            min-width: 250px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            padding: 10px;
         }
         
         .category-title {
@@ -91,34 +162,42 @@
             padding-bottom: 5px;
             margin-bottom: 10px;
             font-size: 1.1rem;
+            text-align: center;
         }
         
         .menu-item {
-            background: #f8f9fa;
-            padding: 10px;
+            background: white;
+            padding: 8px;
             margin-bottom: 5px;
-            border-left: 4px solid #4a90e2;
-            border-radius: 4px;
+            border-left: 3px solid #4a90e2;
+            border-radius: 3px;
             display: flex;
             justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .item-name {
             font-weight: bold;
             flex: 1;
+            font-size: 0.9rem;
         }
         
         .item-price {
             color: #ff6b6b;
             font-weight: bold;
+            font-size: 0.9rem;
+            min-width: 50px;
+            text-align: right;
         }
         
         .no-menu {
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             color: #777;
+            grid-column: 1 / -1;
         }
         
+        /* 模态框样式 */
         .modal {
             display: none;
             position: fixed;
@@ -136,53 +215,58 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 5px;
             width: 90%;
-            max-width: 400px;
+            max-width: 350px;
             max-height: 80vh;
             overflow-y: auto;
         }
         
         .modal-title {
-            margin: 0 0 15px 0;
+            margin: 0 0 10px 0;
             color: #333;
             text-align: center;
+            font-size: 1.1rem;
         }
         
         .modal-input {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             margin-bottom: 10px;
             border: 1px solid #ddd;
-            border-radius: 4px;
+            border-radius: 3px;
             box-sizing: border-box;
         }
         
         .modal-buttons {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             margin-top: 15px;
         }
         
         .modal-info {
             background: #e8f4fc;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            border-left: 4px solid #3498db;
+            padding: 8px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            border-left: 3px solid #3498db;
+            font-size: 0.85rem;
         }
         
+        /* 消息提示 */
         .message {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            top: 10px;
+            right: 10px;
             background: #50c878;
             color: white;
-            padding: 10px 15px;
-            border-radius: 4px;
+            padding: 8px 12px;
+            border-radius: 3px;
             display: none;
             z-index: 1001;
+            font-size: 0.85rem;
+            max-width: 250px;
         }
         
         .message.error {
@@ -193,83 +277,110 @@
             background: #3498db;
         }
         
+        /* 进度条 */
         .progress-bar {
             width: 100%;
-            height: 6px;
+            height: 4px;
             background: #f0f0f0;
-            border-radius: 3px;
-            margin: 10px 0;
+            border-radius: 2px;
+            margin: 8px 0;
             display: none;
         }
         
         .progress-fill {
             height: 100%;
             background: #4a90e2;
-            border-radius: 3px;
+            border-radius: 2px;
             width: 0%;
             transition: width 0.3s;
         }
         
         .progress-text {
             text-align: center;
-            font-size: 0.9rem;
-            color: #666;
-            margin: 5px 0;
-        }
-        
-        .url-info {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-            word-break: break-all;
-            font-size: 0.9rem;
-        }
-        
-        .url-test {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 10px 0;
-            display: none;
-        }
-        
-        .url-status {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 3px;
             font-size: 0.8rem;
-            margin-left: 5px;
+            color: #666;
+            margin: 3px 0;
         }
         
-        .success {
-            background: #d4edda;
-            color: #155724;
+        /* 底部信息 */
+        .footer {
+            text-align: center;
+            padding: 8px;
+            color: #777;
+            font-size: 0.75rem;
+            border-top: 1px solid #eee;
+            background: #f8f8f8;
         }
         
-        .error-status {
-            background: #f8d7da;
-            color: #721c24;
-        }
-        
-        .loading {
-            background: #fff3cd;
-            color: #856404;
+        /* 响应式调整 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 6px 10px;
+                min-height: 70px;
+            }
+            
+            .title {
+                font-size: 1.1rem;
+            }
+            
+            .header-btn {
+                font-size: 0.7rem;
+                padding: 3px 6px;
+            }
+            
+            .categories-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .category-column {
+                min-width: 100%;
+            }
+            
+            .menu-container {
+                max-height: calc(100vh - 140px);
+                padding: 8px;
+            }
         }
         
         @media (max-width: 480px) {
-            .btn {
-                width: 100%;
-                margin: 5px 0;
+            .header-buttons {
+                min-width: 120px;
             }
             
-            .modal-buttons {
+            .header-btn {
+                font-size: 0.65rem;
+                padding: 2px 4px;
+            }
+            
+            .title {
+                font-size: 1rem;
+            }
+            
+            .subtitle {
+                font-size: 0.7rem;
+            }
+            
+            .date-display {
+                font-size: 0.8rem;
+                padding: 3px 8px;
+            }
+            
+            .admin-btn {
+                width: calc(50% - 5px);
+                margin: 2px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .header-buttons {
                 flex-direction: column;
+                gap: 3px;
             }
             
-            .modal-content {
-                width: 95%;
-                padding: 15px;
+            .header-btn {
+                width: 100%;
+                justify-content: center;
             }
         }
     </style>
@@ -278,33 +389,69 @@
     <div class="message" id="message">操作成功！</div>
     
     <div class="container">
+        <!-- 压缩后的顶部区域 -->
         <div class="header">
-            <h1 class="title">餐厅菜单公示栏</h1>
-            <div class="date-display" id="current-date">正在加载...</div>
-            <div style="margin-top: 10px;">
-                <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
-                <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
-                <button class="btn" onclick="showOnlineUpdate()">在线更新</button>
-                <button class="btn" onclick="fullscreen()">全屏显示</button>
-            </div>
-        </div>
-        
-        <div id="admin-controls" style="display:none;">
-            <div class="buttons">
-                <button class="btn" onclick="importExcel()">导入菜单</button>
-                <button class="btn export-btn" onclick="exportExcel()">导出菜单</button>
-                <button class="btn online-btn" onclick="showToday()">今日菜单</button>
-                <button class="btn print-btn" onclick="window.print()">打印</button>
-                <button class="btn" onclick="showChangePassword()">修改密码</button>
+            <div class="header-main">
+                <div class="title-area">
+                    <h1 class="title">餐厅菜单公示栏</h1>
+                    <p class="subtitle">每日精选 · 健康美味</p>
+                </div>
+                
+                <!-- 右上角按钮区域 -->
+                <div class="header-buttons">
+                    <button class="header-btn" id="admin-btn" onclick="showPasswordModal()">
+                        <i class="fas fa-cog"></i>管理登录
+                    </button>
+                    <button class="header-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">
+                        <i class="fas fa-sign-out-alt"></i>退出管理
+                    </button>
+                    <button class="header-btn" onclick="showOnlineUpdate()">
+                        <i class="fas fa-cloud-download-alt"></i>在线更新
+                    </button>
+                    <button class="header-btn" onclick="fullscreen()">
+                        <i class="fas fa-expand"></i>全屏显示
+                    </button>
+                </div>
             </div>
             
-            <div class="buttons">
-                <input type="date" id="date-selector" onchange="changeDate(this.value)" style="padding:8px;border-radius:4px;border:1px solid #ddd;">
+            <!-- 日期显示区域 -->
+            <div class="date-area">
+                <div class="date-display" id="current-date">正在加载...</div>
             </div>
         </div>
         
+        <!-- 管理员控制区域 -->
+        <div id="admin-controls">
+            <div class="admin-buttons">
+                <input type="date" id="date-selector" onchange="changeDate(this.value)" style="padding:5px;border-radius:3px;border:1px solid #ddd;font-size:0.85rem;">
+            </div>
+            <div class="admin-buttons" style="margin-top:5px;">
+                <button class="admin-btn" onclick="importExcel()">
+                    <i class="fas fa-file-import"></i>导入菜单
+                </button>
+                <button class="admin-btn export" onclick="exportExcel()">
+                    <i class="fas fa-file-export"></i>导出菜单
+                </button>
+                <button class="admin-btn online" onclick="showToday()">
+                    <i class="fas fa-calendar-day"></i>今日菜单
+                </button>
+                <button class="admin-btn print" onclick="window.print()">
+                    <i class="fas fa-print"></i>打印
+                </button>
+                <button class="admin-btn settings" onclick="showChangePassword()">
+                    <i class="fas fa-key"></i>修改密码
+                </button>
+            </div>
+        </div>
+        
+        <!-- 菜单容器 - 水平排列分类 -->
         <div class="menu-container" id="menu-container">
             <div class="no-menu">正在加载菜单数据...</div>
+        </div>
+        
+        <!-- 底部信息 -->
+        <div class="footer">
+            餐厅菜单公示栏 © <span id="current-year"></span> | 技术支持：菜单管理系统
         </div>
     </div>
     
@@ -314,8 +461,8 @@
             <h3 class="modal-title">管理员登录</h3>
             <input type="password" class="modal-input" id="password-input" placeholder="输入密码" onkeypress="if(event.key=='Enter') checkPassword()">
             <div class="modal-buttons">
-                <button class="btn" onclick="hideModal('password-modal')">取消</button>
-                <button class="btn export-btn" onclick="checkPassword()">登录</button>
+                <button class="admin-btn" onclick="hideModal('password-modal')">取消</button>
+                <button class="admin-btn export" onclick="checkPassword()">登录</button>
             </div>
         </div>
     </div>
@@ -327,20 +474,20 @@
             
             <div class="modal-info">
                 <strong><i class="fas fa-info-circle"></i> 在线更新说明：</strong>
-                <p style="margin:5px 0 0 0;font-size:0.9rem;">从在线Excel文件获取最新菜单数据</p>
+                <p style="margin:3px 0 0 0;font-size:0.8rem;">从在线Excel文件获取最新菜单数据</p>
             </div>
             
-            <div class="url-info">
+            <div class="modal-info">
                 <strong>默认数据源：</strong>
-                <p style="margin:5px 0;font-size:0.85rem;" id="default-url">https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx</p>
+                <p style="margin:3px 0;font-size:0.8rem;" id="default-url">https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx</p>
             </div>
             
-            <div style="margin:15px 0;">
-                <label style="display:block;margin-bottom:5px;">自定义Excel链接：</label>
+            <div style="margin:10px 0;">
+                <label style="display:block;margin-bottom:3px;font-size:0.85rem;">自定义Excel链接：</label>
                 <input type="text" class="modal-input" id="custom-url" placeholder="输入Excel文件链接">
-                <div class="modal-buttons" style="margin-top:10px;">
-                    <button class="btn" onclick="testCustomUrl()">测试链接</button>
-                    <button class="btn export-btn" onclick="saveCustomUrl()">保存设置</button>
+                <div class="modal-buttons" style="margin-top:8px;">
+                    <button class="admin-btn" onclick="testCustomUrl()">测试链接</button>
+                    <button class="admin-btn export" onclick="saveCustomUrl()">保存设置</button>
                 </div>
             </div>
             
@@ -349,28 +496,28 @@
             </div>
             <div class="progress-text" id="progress-text"></div>
             
-            <div class="url-test" id="url-test">
+            <div class="modal-info" id="url-test" style="display:none;">
                 <strong>连接测试结果：</strong>
-                <div id="test-result"></div>
+                <div id="test-result" style="margin-top:3px;"></div>
             </div>
             
-            <div style="margin:20px 0;">
-                <button class="btn online-btn" style="width:100%;margin-bottom:10px;" onclick="downloadOnlineMenu()">
+            <div style="margin:15px 0;">
+                <button class="admin-btn online" style="width:100%;margin-bottom:5px;" onclick="downloadOnlineMenu()">
                     <i class="fas fa-cloud-download-alt"></i> 开始在线更新
                 </button>
                 
-                <button class="btn export-btn" style="width:100%;margin-bottom:10px;" onclick="downloadExcelFile()">
+                <button class="admin-btn export" style="width:100%;margin-bottom:5px;" onclick="downloadExcelFile()">
                     <i class="fas fa-file-download"></i> 下载Excel文件
                 </button>
                 
-                <button class="btn" style="width:100%;" onclick="manualImport()">
+                <button class="admin-btn" style="width:100%;" onclick="manualImport()">
                     <i class="fas fa-file-upload"></i> 手动上传文件
                 </button>
             </div>
             
             <div class="modal-buttons">
-                <button class="btn" onclick="hideModal('online-modal')">关闭</button>
-                <button class="btn" onclick="resetToDefaultUrl()">重置为默认</button>
+                <button class="admin-btn" onclick="hideModal('online-modal')">关闭</button>
+                <button class="admin-btn" onclick="resetToDefaultUrl()">重置为默认</button>
             </div>
         </div>
     </div>
@@ -382,13 +529,13 @@
             <input type="password" class="modal-input" id="old-password" placeholder="原密码">
             <input type="password" class="modal-input" id="new-password" placeholder="新密码(至少4位)">
             <div class="modal-buttons">
-                <button class="btn" onclick="hideModal('change-password-modal')">取消</button>
-                <button class="btn export-btn" onclick="saveNewPassword()">确认修改</button>
+                <button class="admin-btn" onclick="hideModal('change-password-modal')">取消</button>
+                <button class="admin-btn export" onclick="saveNewPassword()">确认修改</button>
             </div>
         </div>
     </div>
 
-    <!-- 使用简单的Font Awesome CDN -->
+    <!-- 外部资源 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
@@ -465,7 +612,6 @@
                 if (saved) {
                     menuData = JSON.parse(saved);
                 } else {
-                    // 创建示例数据
                     createSampleData();
                 }
                 
@@ -474,7 +620,6 @@
                     ADMIN_KEY = savedPassword;
                 }
                 
-                // 加载自定义URL
                 var savedUrl = localStorage.getItem('excel_url');
                 if (savedUrl) {
                     document.getElementById('custom-url').value = savedUrl;
@@ -484,7 +629,7 @@
                 
                 return true;
             } catch (e) {
-                showMessage('加载数据失败: ' + e.message, 'error');
+                showMessage('加载数据失败', 'error');
                 createSampleData();
                 return false;
             }
@@ -507,22 +652,30 @@
                     "主菜": [
                         { name: "红烧肉", price: 12 },
                         { name: "清蒸鱼", price: 15 },
-                        { name: "青椒炒猪肝", price: 10 }
+                        { name: "青椒炒猪肝", price: 10 },
+                        { name: "糖醋排骨", price: 18 }
                     ],
                     "素菜": [
                         { name: "芹菜炒豆干", price: 4 },
-                        { name: "麻婆豆腐", price: 5 }
+                        { name: "麻婆豆腐", price: 5 },
+                        { name: "蒜蓉西兰花", price: 6 }
                     ],
-                    "主食汤品": [
-                        { name: "米饭+例汤", price: 2 },
-                        { name: "紫菜蛋花汤", price: 3 }
+                    "主食": [
+                        { name: "米饭", price: 2 },
+                        { name: "面条", price: 3 },
+                        { name: "馒头", price: 1 }
+                    ],
+                    "汤品": [
+                        { name: "紫菜蛋花汤", price: 3 },
+                        { name: "番茄蛋汤", price: 3 },
+                        { name: "冬瓜排骨汤", price: 8 }
                     ]
                 }
             };
             saveData();
         }
         
-        // ===== 菜单显示 =====
+        // ===== 菜单显示 - 水平排列分类 =====
         function showMenu(date) {
             currentDate = date;
             currentDateEl.textContent = formatDate(date);
@@ -533,33 +686,42 @@
                 return;
             }
             
-            var html = '';
             var categories = menuData[date];
+            var categoryNames = Object.keys(categories);
             
-            for (var category in categories) {
-                if (categories.hasOwnProperty(category)) {
-                    html += '<div class="category">';
-                    html += '<h3 class="category-title">' + category + '</h3>';
-                    html += '<div class="category-items">';
-                    
-                    var items = categories[category];
-                    for (var i = 0; i < items.length; i++) {
-                        var item = items[i];
-                        html += '<div class="menu-item">';
-                        html += '<span class="item-name">' + item.name + '</span>';
-                        html += '<span class="item-price">' + item.price + '元</span>';
-                        
-                        if (isAdmin) {
-                            html += '<button class="btn" style="margin-left:10px;padding:2px 8px;font-size:0.8rem;" onclick="editItem(\'' + date + '\', \'' + category + '\', ' + i + ')">编辑</button>';
-                        }
-                        
-                        html += '</div>';
-                    }
-                    
-                    html += '</div></div>';
-                }
+            if (categoryNames.length === 0) {
+                menuContainer.innerHTML = '<div class="no-menu">该日期暂无菜单数据</div>';
+                return;
             }
             
+            // 创建水平排列的分类容器
+            var html = '<div class="categories-container">';
+            
+            for (var i = 0; i < categoryNames.length; i++) {
+                var category = categoryNames[i];
+                var items = categories[category];
+                
+                html += '<div class="category-column">';
+                html += '<h3 class="category-title">' + category + '</h3>';
+                html += '<div class="category-items">';
+                
+                for (var j = 0; j < items.length; j++) {
+                    var item = items[j];
+                    html += '<div class="menu-item">';
+                    html += '<span class="item-name">' + item.name + '</span>';
+                    html += '<span class="item-price">' + item.price + '元</span>';
+                    
+                    if (isAdmin) {
+                        html += '<button style="margin-left:5px;padding:2px 6px;font-size:0.7rem;background:#4a90e2;color:white;border:none;border-radius:2px;cursor:pointer;" onclick="editItem(\'' + date + '\', \'' + category + '\', ' + j + ')">编辑</button>';
+                    }
+                    
+                    html += '</div>';
+                }
+                
+                html += '</div></div>';
+            }
+            
+            html += '</div>';
             menuContainer.innerHTML = html;
         }
         
@@ -710,7 +872,6 @@
                         showMessage('导入成功');
                     }
                 } catch (error) {
-                    console.error(error);
                     showMessage('导入失败: ' + error.message, 'error');
                 }
             };
@@ -757,7 +918,7 @@
                 
                 showMessage('导出成功: ' + fileName);
             } catch (error) {
-                showMessage('导出失败: ' + error.message, 'error');
+                showMessage('导出失败', 'error');
             }
         }
         
@@ -781,37 +942,36 @@
             }
             
             urlTestDiv.style.display = 'block';
-            testResultDiv.innerHTML = '<div style="margin:5px 0;">测试连接中... <span class="url-status loading">测试中</span></div>';
+            testResultDiv.innerHTML = '<div style="margin:3px 0;font-size:0.8rem;">测试连接中... <span style="background:#fff3cd;color:#856404;padding:1px 4px;border-radius:2px;font-size:0.75rem;">测试中</span></div>';
             
-            // 使用XMLHttpRequest代替fetch，兼容老浏览器
             var xhr = new XMLHttpRequest();
             xhr.open('HEAD', url);
             xhr.timeout = 5000;
             
             xhr.onload = function() {
                 if (xhr.status === 200) {
-                    testResultDiv.innerHTML = '<div style="margin:5px 0;">连接成功! <span class="url-status success">可用</span></div>';
+                    testResultDiv.innerHTML = '<div style="margin:3px 0;font-size:0.8rem;">连接成功! <span style="background:#d4edda;color:#155724;padding:1px 4px;border-radius:2px;font-size:0.75rem;">可用</span></div>';
                     showMessage('链接测试成功', 'info');
                 } else {
-                    testResultDiv.innerHTML = '<div style="margin:5px 0;">连接失败 (HTTP ' + xhr.status + ') <span class="url-status error-status">不可用</span></div>';
+                    testResultDiv.innerHTML = '<div style="margin:3px 0;font-size:0.8rem;">连接失败 (HTTP ' + xhr.status + ') <span style="background:#f8d7da;color:#721c24;padding:1px 4px;border-radius:2px;font-size:0.75rem;">不可用</span></div>';
                     showMessage('链接测试失败', 'error');
                 }
             };
             
             xhr.onerror = function() {
-                testResultDiv.innerHTML = '<div style="margin:5px 0;">网络错误 <span class="url-status error-status">不可用</span></div>';
+                testResultDiv.innerHTML = '<div style="margin:3px 0;font-size:0.8rem;">网络错误 <span style="background:#f8d7da;color:#721c24;padding:1px 4px;border-radius:2px;font-size:0.75rem;">不可用</span></div>';
                 showMessage('网络连接失败', 'error');
             };
             
             xhr.ontimeout = function() {
-                testResultDiv.innerHTML = '<div style="margin:5px 0;">连接超时 <span class="url-status error-status">超时</span></div>';
+                testResultDiv.innerHTML = '<div style="margin:3px 0;font-size:0.8rem;">连接超时 <span style="background:#f8d7da;color:#721c24;padding:1px 4px;border-radius:2px;font-size:0.75rem;">超时</span></div>';
                 showMessage('连接超时', 'error');
             };
             
             try {
                 xhr.send();
             } catch (e) {
-                testResultDiv.innerHTML = '<div style="margin:5px 0;">请求失败: ' + e.message + ' <span class="url-status error-status">错误</span></div>';
+                testResultDiv.innerHTML = '<div style="margin:3px 0;font-size:0.8rem;">请求失败: ' + e.message + ' <span style="background:#f8d7da;color:#721c24;padding:1px 4px;border-radius:2px;font-size:0.75rem;">错误</span></div>';
                 showMessage('请求失败: ' + e.message, 'error');
             }
         }
@@ -840,7 +1000,6 @@
             
             showProgress(10, '正在连接服务器...');
             
-            // 使用XMLHttpRequest下载文件
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url);
             xhr.responseType = 'arraybuffer';
@@ -858,12 +1017,10 @@
                     showProgress(90, '解析Excel数据...');
                     
                     try {
-                        // 获取当前日期（用于导入）
                         var today = getTodayString();
                         var data = new Uint8Array(xhr.response);
                         var workbook = window.XLSX.read(data, { type: 'array' });
                         
-                        // 处理所有工作表（整周数据）
                         var newData = {};
                         var sheetNames = workbook.SheetNames;
                         
@@ -893,12 +1050,10 @@
                                 }
                             }
                             
-                            // 使用工作表名作为日期，如果没有有效工作表名则使用today
                             var dateKey = sheetName && sheetName.match(/\d{4}-\d{2}-\d{2}/) ? sheetName : today;
                             newData[dateKey] = newMenu;
                         }
                         
-                        // 合并到现有数据
                         for (var dateKey in newData) {
                             if (newData.hasOwnProperty(dateKey)) {
                                 menuData[dateKey] = newData[dateKey];
@@ -1007,59 +1162,21 @@
         
         // ===== 初始化 =====
         function init() {
-            // 显示加载中
             showMessage('正在加载系统...', 'info');
             
-            // 检查XLSX库
             if (!window.XLSX) {
-                showMessage('注意: Excel功能需要网络连接', 'error');
-                // 尝试动态加载
-                var script = document.createElement('script');
-                script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
-                script.onload = function() {
-                    showMessage('Excel库加载成功', 'info');
-                };
-                script.onerror = function() {
-                    showMessage('Excel库加载失败，部分功能不可用', 'error');
-                };
-                document.head.appendChild(script);
+                showMessage('正在加载Excel库...', 'info');
             }
             
-            // 加载数据
             if (!loadData()) {
                 createSampleData();
             }
             
-            // 显示今日菜单
             var today = getTodayString();
             showMenu(today);
             
-            // 显示默认URL
             document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
-            
-            // 添加右键菜单
-            document.addEventListener('contextmenu', function(e) {
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
-                }
-            });
-            
-            // 长按重置密码
-            var longPressTimer;
-            
-            adminBtn.addEventListener('touchstart', function() {
-                longPressTimer = setTimeout(function() {
-                    forgotPassword();
-                }, 3000);
-            });
-            
-            adminBtn.addEventListener('touchend', function() {
-                clearTimeout(longPressTimer);
-            });
-            
-            adminBtn.addEventListener('touchmove', function() {
-                clearTimeout(longPressTimer);
-            });
+            document.getElementById('current-year').textContent = new Date().getFullYear();
             
             // 点击模态框外部关闭
             var modals = document.querySelectorAll('.modal');
@@ -1080,13 +1197,28 @@
                 }
             });
             
-            // 显示欢迎信息
+            // 长按重置密码
+            var longPressTimer;
+            
+            adminBtn.addEventListener('touchstart', function() {
+                longPressTimer = setTimeout(function() {
+                    forgotPassword();
+                }, 3000);
+            });
+            
+            adminBtn.addEventListener('touchend', function() {
+                clearTimeout(longPressTimer);
+            });
+            
+            adminBtn.addEventListener('touchmove', function() {
+                clearTimeout(longPressTimer);
+            });
+            
             setTimeout(function() {
                 showMessage('餐厅菜单系统已加载完成');
             }, 1000);
         }
         
-        // 页面加载完成后初始化
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
