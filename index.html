@@ -2,14 +2,19 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>餐厅菜单公示栏</title>
     <style>
+        * {
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 10px;
             background: #f0f0f0;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .container {
@@ -57,6 +62,9 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.9rem;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
         }
         
         .admin-btn {
@@ -87,15 +95,14 @@
             gap: 15px;
         }
         
-        /* 修复：平板设备在768px-1024px之间仍然显示4列 */
-        /* 小屏幕平板：显示2列 */
+        /* 中等屏幕平板：显示2列 */
         @media (max-width: 768px) {
             .menu-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
         
-        /* 手机设备：显示1列 */
+        /* 小屏幕平板和手机：显示1列 */
         @media (max-width: 480px) {
             .menu-grid {
                 grid-template-columns: 1fr;
@@ -104,6 +111,7 @@
             .btn {
                 width: 100%;
                 margin: 5px 0;
+                display: block;
             }
             
             .modal-buttons {
@@ -123,6 +131,7 @@
             /* 添加最大高度和滚动 */
             max-height: 400px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .category-title {
@@ -146,16 +155,19 @@
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
         }
         
         .item-name {
             font-weight: bold;
             flex: 1;
+            padding-right: 5px;
         }
         
         .item-price {
             color: #ff6b6b;
             font-weight: bold;
+            white-space: nowrap;
         }
         
         .no-menu {
@@ -174,6 +186,7 @@
             height: 100%;
             background: rgba(0,0,0,0.5);
             z-index: 1000;
+            -webkit-overflow-scrolling: touch;
         }
         
         .modal-content {
@@ -181,6 +194,7 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
             background: white;
             padding: 20px;
             border-radius: 5px;
@@ -188,6 +202,7 @@
             max-width: 400px;
             max-height: 80vh;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
         
         .modal-title {
@@ -203,6 +218,7 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
+            font-size: 16px; /* 防止iOS缩放 */
         }
         
         .modal-buttons {
@@ -229,6 +245,8 @@
             border-radius: 4px;
             display: none;
             z-index: 1001;
+            max-width: 80%;
+            word-break: break-word;
         }
         
         .message.error {
@@ -303,24 +321,31 @@
             color: #856404;
         }
         
-        /* 添加平板横屏的特殊样式 */
-        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
-            .menu-grid {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 10px;
-            }
-            
-            .category-column {
-                max-height: 350px;
-                padding: 12px;
-            }
-        }
-        
-        /* 平板竖屏：2列 */
-        @media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+        /* 安卓平板特定样式 */
+        @media (min-width: 600px) and (max-width: 1024px) {
             .menu-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
+        }
+        
+        /* 大平板横屏优化 */
+        @media (min-width: 1025px) and (max-width: 1366px) and (orientation: landscape) {
+            .menu-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 12px;
+            }
+            
+            .category-column {
+                max-height: 500px;
+            }
+        }
+        
+        /* 防止文字选中 */
+        .btn, .menu-item {
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
         }
     </style>
 </head>
@@ -335,7 +360,7 @@
                 <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
                 <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
                 <button class="btn" onclick="showOnlineUpdate()">在线更新</button>
-                <button class="btn" onclick="fullscreen()">全屏显示</button>
+                <button class="btn" onclick="requestFullscreen()">全屏显示</button>
             </div>
         </div>
         
@@ -509,6 +534,41 @@
             var date = new Date(dateStr);
             var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
             return dateStr + ' 星期' + weekdays[date.getDay()];
+        }
+        
+        // ===== 修复安卓全屏功能 =====
+        function requestFullscreen() {
+            var elem = document.documentElement;
+            
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) { /* Safari */
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) { /* IE11 */
+                elem.msRequestFullscreen();
+            } else if (elem.mozRequestFullScreen) { /* Firefox */
+                elem.mozRequestFullScreen();
+            } else {
+                // 安卓浏览器可能需要特殊的全屏处理
+                if (typeof Element.prototype.webkitRequestFullscreen === 'undefined' && 
+                    typeof Element.prototype.mozRequestFullScreen === 'undefined') {
+                    
+                    // 尝试使用全屏API的替代方案
+                    if (window.navigator.standalone === true) {
+                        // iOS全屏模式
+                        showMessage('已在全屏模式中', 'info');
+                    } else {
+                        // 尝试使用window.resizeTo
+                        try {
+                            window.moveTo(0, 0);
+                            window.resizeTo(screen.width, screen.height);
+                            showMessage('全屏模式已激活', 'info');
+                        } catch (e) {
+                            showMessage('此浏览器不支持全屏功能', 'error');
+                        }
+                    }
+                }
+            }
         }
         
         // ===== 数据管理 =====
@@ -1064,17 +1124,6 @@
         function changeDate(date) {
             if (date) {
                 showMenu(date);
-            }
-        }
-        
-        function fullscreen() {
-            var elem = document.documentElement;
-            if (elem.requestFullscreen) {
-                elem.requestFullscreen();
-            } else if (elem.mozRequestFullScreen) {
-                elem.mozRequestFullScreen();
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestfullscreen();
             }
         }
         
