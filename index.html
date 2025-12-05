@@ -78,6 +78,7 @@
         /* ===== 修改菜单容器为四列布局 ===== */
         .menu-container {
             padding: 15px;
+            /* 移除max-height限制，让内容自适应 */
         }
         
         .menu-grid {
@@ -104,7 +105,9 @@
             background: #f8f9fa;
             border-radius: 8px;
             padding: 15px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            /* 添加最大高度和滚动 */
+            max-height: 400px;
+            overflow-y: auto;
         }
         
         .category-title {
@@ -114,6 +117,10 @@
             margin-bottom: 10px;
             font-size: 1.1rem;
             text-align: center;
+            position: sticky;
+            top: 0;
+            background: #f8f9fa;
+            z-index: 1;
         }
         
         .menu-item {
@@ -140,6 +147,7 @@
             text-align: center;
             padding: 30px;
             color: #777;
+            grid-column: 1 / -1;
         }
         
         .modal {
@@ -540,17 +548,19 @@
                         { name: "麻婆豆腐", price: 5 }
                     ],
                     "主食": [
-                        { name: "米饭", price: 2 }
+                        { name: "米饭", price: 2 },
+                        { name: "馒头", price: 1 }
                     ],
                     "汤品": [
-                        { name: "紫菜蛋花汤", price: 3 }
+                        { name: "紫菜蛋花汤", price: 3 },
+                        { name: "西红柿鸡蛋汤", price: 3 }
                     ]
                 }
             };
             saveData();
         }
         
-        // ===== 菜单显示 - 修改为四列布局 =====
+        // ===== 菜单显示 - 四列布局 =====
         function showMenu(date) {
             currentDate = date;
             currentDateEl.textContent = formatDate(date);
@@ -722,9 +732,9 @@
                     
                     var newMenu = {};
                     // 初始化四个固定分类
-                    FIXED_CATEGORIES.forEach(function(category) {
-                        newMenu[category] = [];
-                    });
+                    for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
+                        newMenu[FIXED_CATEGORIES[i]] = [];
+                    }
                     
                     for (var i = 1; i < jsonData.length; i++) {
                         var row = jsonData[i];
@@ -737,6 +747,10 @@
                                 // 如果分类不在固定分类中，默认归类到主菜
                                 if (FIXED_CATEGORIES.indexOf(category) === -1) {
                                     category = '主菜';
+                                }
+                                
+                                if (!newMenu[category]) {
+                                    newMenu[category] = [];
                                 }
                                 
                                 newMenu[category].push({
@@ -782,13 +796,11 @@
             try {
                 var data = [['类别', '菜品名称', '价格(元)']];
                 
-                // 按固定分类顺序导出
-                for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
-                    var category = FIXED_CATEGORIES[i];
-                    var items = menu[category];
-                    if (items) {
-                        for (var j = 0; j < items.length; j++) {
-                            var item = items[j];
+                for (var category in menu) {
+                    if (menu.hasOwnProperty(category)) {
+                        var items = menu[category];
+                        for (var i = 0; i < items.length; i++) {
+                            var item = items[i];
                             data.push([category, item.name, item.price]);
                         }
                     }
@@ -829,7 +841,6 @@
             urlTestDiv.style.display = 'block';
             testResultDiv.innerHTML = '<div style="margin:5px 0;">测试连接中... <span class="url-status loading">测试中</span></div>';
             
-            // 使用XMLHttpRequest代替fetch，兼容老浏览器
             var xhr = new XMLHttpRequest();
             xhr.open('HEAD', url);
             xhr.timeout = 5000;
@@ -886,7 +897,6 @@
             
             showProgress(10, '正在连接服务器...');
             
-            // 使用XMLHttpRequest下载文件
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url);
             xhr.responseType = 'arraybuffer';
@@ -904,12 +914,10 @@
                     showProgress(90, '解析Excel数据...');
                     
                     try {
-                        // 获取当前日期（用于导入）
                         var today = getTodayString();
                         var data = new Uint8Array(xhr.response);
                         var workbook = window.XLSX.read(data, { type: 'array' });
                         
-                        // 处理所有工作表（整周数据）
                         var newData = {};
                         var sheetNames = workbook.SheetNames;
                         
@@ -920,9 +928,9 @@
                             
                             var newMenu = {};
                             // 初始化四个固定分类
-                            FIXED_CATEGORIES.forEach(function(category) {
-                                newMenu[category] = [];
-                            });
+                            for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
+                                newMenu[FIXED_CATEGORIES[i]] = [];
+                            }
                             
                             for (var i = 1; i < jsonData.length; i++) {
                                 var row = jsonData[i];
@@ -937,6 +945,10 @@
                                             category = '主菜';
                                         }
                                         
+                                        if (!newMenu[category]) {
+                                            newMenu[category] = [];
+                                        }
+                                        
                                         newMenu[category].push({
                                             name: String(name).trim(),
                                             price: Number(price) || 0
@@ -945,12 +957,10 @@
                                 }
                             }
                             
-                            // 使用工作表名作为日期，如果没有有效工作表名则使用today
                             var dateKey = sheetName && sheetName.match(/\d{4}-\d{2}-\d{2}/) ? sheetName : today;
                             newData[dateKey] = newMenu;
                         }
                         
-                        // 合并到现有数据
                         for (var dateKey in newData) {
                             if (newData.hasOwnProperty(dateKey)) {
                                 menuData[dateKey] = newData[dateKey];
@@ -1065,7 +1075,6 @@
             // 检查XLSX库
             if (!window.XLSX) {
                 showMessage('注意: Excel功能需要网络连接', 'error');
-                // 尝试动态加载
                 var script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
                 script.onload = function() {
