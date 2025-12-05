@@ -110,58 +110,38 @@
         .category-title {
             color: #ff6b6b;
             border-bottom: 2px solid #ff6b6b;
-            padding-bottom: 8px;
-            margin-bottom: 15px;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
             font-size: 1.1rem;
             text-align: center;
         }
         
         .menu-item {
-            background: white;
+            background: #f8f9fa;
             padding: 10px;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             border-left: 4px solid #4a90e2;
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
         
         .item-name {
             font-weight: bold;
             flex: 1;
-            padding-right: 10px;
         }
         
         .item-price {
             color: #ff6b6b;
             font-weight: bold;
-            min-width: 60px;
-            text-align: right;
-        }
-        
-        .item-actions {
-            margin-left: 10px;
-        }
-        
-        .edit-btn {
-            background: #3498db;
-            color: white;
-            border: none;
-            padding: 4px 8px;
-            border-radius: 3px;
-            cursor: pointer;
-            font-size: 0.8rem;
         }
         
         .no-menu {
             text-align: center;
             padding: 30px;
             color: #777;
-            grid-column: 1 / -1;
         }
         
-        /* 模态框样式保持不变 */
         .modal {
             display: none;
             position: fixed;
@@ -553,30 +533,24 @@
                     "主菜": [
                         { name: "红烧肉", price: 12 },
                         { name: "清蒸鱼", price: 15 },
-                        { name: "青椒炒猪肝", price: 10 },
-                        { name: "宫保鸡丁", price: 11 }
+                        { name: "青椒炒猪肝", price: 10 }
                     ],
                     "素菜": [
                         { name: "芹菜炒豆干", price: 4 },
-                        { name: "麻婆豆腐", price: 5 },
-                        { name: "蒜蓉西兰花", price: 6 }
+                        { name: "麻婆豆腐", price: 5 }
                     ],
                     "主食": [
-                        { name: "米饭", price: 2 },
-                        { name: "馒头", price: 1 },
-                        { name: "花卷", price: 1 }
+                        { name: "米饭", price: 2 }
                     ],
                     "汤品": [
-                        { name: "紫菜蛋花汤", price: 3 },
-                        { name: "西红柿鸡蛋汤", price: 3 },
-                        { name: "酸辣汤", price: 4 }
+                        { name: "紫菜蛋花汤", price: 3 }
                     ]
                 }
             };
             saveData();
         }
         
-        // ===== 菜单显示 - 四列布局，无统计信息 =====
+        // ===== 菜单显示 - 修改为四列布局 =====
         function showMenu(date) {
             currentDate = date;
             currentDateEl.textContent = formatDate(date);
@@ -612,9 +586,7 @@
                         html += '<span class="item-price">' + item.price + '元</span>';
                         
                         if (isAdmin) {
-                            html += '<div class="item-actions">';
-                            html += '<button class="edit-btn" onclick="editItem(\'' + date + '\', \'' + category + '\', ' + j + ')">编辑</button>';
-                            html += '</div>';
+                            html += '<button class="btn" style="margin-left:10px;padding:2px 8px;font-size:0.8rem;" onclick="editItem(\'' + date + '\', \'' + category + '\', ' + j + ')">编辑</button>';
                         }
                         
                         html += '</div>';
@@ -762,9 +734,9 @@
                             var price = row[2];
                             
                             if (name && price !== undefined) {
-                                // 确保分类是四个固定分类之一
+                                // 如果分类不在固定分类中，默认归类到主菜
                                 if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                    category = '主菜'; // 默认归类到主菜
+                                    category = '主菜';
                                 }
                                 
                                 newMenu[category].push({
@@ -810,7 +782,7 @@
             try {
                 var data = [['类别', '菜品名称', '价格(元)']];
                 
-                // 导出固定分类
+                // 按固定分类顺序导出
                 for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
                     var category = FIXED_CATEGORIES[i];
                     var items = menu[category];
@@ -857,6 +829,7 @@
             urlTestDiv.style.display = 'block';
             testResultDiv.innerHTML = '<div style="margin:5px 0;">测试连接中... <span class="url-status loading">测试中</span></div>';
             
+            // 使用XMLHttpRequest代替fetch，兼容老浏览器
             var xhr = new XMLHttpRequest();
             xhr.open('HEAD', url);
             xhr.timeout = 5000;
@@ -913,6 +886,7 @@
             
             showProgress(10, '正在连接服务器...');
             
+            // 使用XMLHttpRequest下载文件
             var xhr = new XMLHttpRequest();
             xhr.open('GET', url);
             xhr.responseType = 'arraybuffer';
@@ -930,10 +904,12 @@
                     showProgress(90, '解析Excel数据...');
                     
                     try {
+                        // 获取当前日期（用于导入）
                         var today = getTodayString();
                         var data = new Uint8Array(xhr.response);
                         var workbook = window.XLSX.read(data, { type: 'array' });
                         
+                        // 处理所有工作表（整周数据）
                         var newData = {};
                         var sheetNames = workbook.SheetNames;
                         
@@ -956,9 +932,9 @@
                                     var price = row[2];
                                     
                                     if (name && price !== undefined) {
-                                        // 确保分类是四个固定分类之一
+                                        // 如果分类不在固定分类中，默认归类到主菜
                                         if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                            category = '主菜'; // 默认归类到主菜
+                                            category = '主菜';
                                         }
                                         
                                         newMenu[category].push({
@@ -969,10 +945,12 @@
                                 }
                             }
                             
+                            // 使用工作表名作为日期，如果没有有效工作表名则使用today
                             var dateKey = sheetName && sheetName.match(/\d{4}-\d{2}-\d{2}/) ? sheetName : today;
                             newData[dateKey] = newMenu;
                         }
                         
+                        // 合并到现有数据
                         for (var dateKey in newData) {
                             if (newData.hasOwnProperty(dateKey)) {
                                 menuData[dateKey] = newData[dateKey];
@@ -1081,91 +1059,83 @@
         
         // ===== 初始化 =====
         function init() {
-            console.log('正在初始化...');
+            // 显示加载中
+            showMessage('正在加载系统...', 'info');
             
             // 检查XLSX库
             if (!window.XLSX) {
-                console.warn('XLSX库未加载，尝试动态加载');
-                showMessage('注意: Excel功能需要网络连接', 'info');
+                showMessage('注意: Excel功能需要网络连接', 'error');
+                // 尝试动态加载
                 var script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
                 script.onload = function() {
-                    console.log('XLSX库加载成功');
                     showMessage('Excel库加载成功', 'info');
-                    continueInit();
                 };
                 script.onerror = function() {
-                    console.error('XLSX库加载失败');
                     showMessage('Excel库加载失败，部分功能不可用', 'error');
-                    continueInit();
                 };
                 document.head.appendChild(script);
-            } else {
-                continueInit();
             }
             
-            function continueInit() {
-                // 加载数据
-                if (!loadData()) {
-                    createSampleData();
-                }
-                
-                // 显示今日菜单
-                var today = getTodayString();
-                showMenu(today);
-                
-                // 显示默认URL
-                document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
-                
-                // 添加右键菜单
-                document.addEventListener('contextmenu', function(e) {
-                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                        e.preventDefault();
-                    }
-                });
-                
-                // 长按重置密码
-                var longPressTimer;
-                
-                adminBtn.addEventListener('touchstart', function() {
-                    longPressTimer = setTimeout(function() {
-                        forgotPassword();
-                    }, 3000);
-                });
-                
-                adminBtn.addEventListener('touchend', function() {
-                    clearTimeout(longPressTimer);
-                });
-                
-                adminBtn.addEventListener('touchmove', function() {
-                    clearTimeout(longPressTimer);
-                });
-                
-                // 点击模态框外部关闭
-                var modals = document.querySelectorAll('.modal');
-                for (var i = 0; i < modals.length; i++) {
-                    modals[i].addEventListener('click', function(e) {
-                        if (e.target === this) {
-                            this.style.display = 'none';
-                        }
-                    });
-                }
-                
-                // ESC键关闭模态框
-                document.addEventListener('keydown', function(e) {
-                    if (e.key === 'Escape') {
-                        hideModal('password-modal');
-                        hideModal('online-modal');
-                        hideModal('change-password-modal');
-                    }
-                });
-                
-                // 显示欢迎信息
-                setTimeout(function() {
-                    showMessage('餐厅菜单系统已加载完成');
-                    console.log('初始化完成');
-                }, 500);
+            // 加载数据
+            if (!loadData()) {
+                createSampleData();
             }
+            
+            // 显示今日菜单
+            var today = getTodayString();
+            showMenu(today);
+            
+            // 显示默认URL
+            document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
+            
+            // 添加右键菜单
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                }
+            });
+            
+            // 长按重置密码
+            var longPressTimer;
+            
+            adminBtn.addEventListener('touchstart', function() {
+                longPressTimer = setTimeout(function() {
+                    forgotPassword();
+                }, 3000);
+            });
+            
+            adminBtn.addEventListener('touchend', function() {
+                clearTimeout(longPressTimer);
+            });
+            
+            adminBtn.addEventListener('touchmove', function() {
+                clearTimeout(longPressTimer);
+            });
+            
+            // 点击模态框外部关闭
+            var modals = document.querySelectorAll('.modal');
+            for (var i = 0; i < modals.length; i++) {
+                modals[i].addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            }
+            
+            // ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideModal('password-modal');
+                    hideModal('online-modal');
+                    hideModal('change-password-modal');
+                }
+            });
+            
+            // 显示欢迎信息
+            setTimeout(function() {
+                showMessage('餐厅菜单系统已加载完成');
+            }, 1000);
         }
         
         // 页面加载完成后初始化
