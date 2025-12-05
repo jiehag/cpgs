@@ -2,94 +2,145 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>餐厅菜单</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>餐厅菜单公示栏</title>
     <style>
-        /* 最简化的CSS */
-        body {
-            font-family: Arial;
+        /* CSS Reset for better compatibility */
+        * {
             margin: 0;
-            padding: 2px;
-            background: white;
+            padding: 0;
+            box-sizing: border-box;
         }
         
-        /* 顶部标题栏 - 高度最小化 */
-        .topbar {
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background: #f0f0f0;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        
+        .header {
             background: #ff6b6b;
             color: white;
-            padding: 2px 5px;
-            position: relative;
-            height: 60px;
+            padding: 15px;
+            text-align: center;
         }
         
         .title {
-            font-size: 16px;
-            margin: 0;
-            padding-top: 3px;
-            text-align: center;
+            font-size: 1.5rem;
+            margin: 0 0 5px 0;
+        }
+        
+        .date-display {
+            font-size: 0.9rem;
+            margin: 10px 0;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 10px;
+            border-radius: 15px;
+            display: inline-block;
         }
         
         .buttons {
-            position: absolute;
-            top: 5px;
-            right: 5px;
+            padding: 10px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
         }
         
-        .btn-small {
-            background: rgba(255,255,255,0.3);
+        .btn {
+            background: #4a90e2;
             color: white;
             border: none;
-            padding: 2px 5px;
-            margin-left: 2px;
-            font-size: 11px;
+            padding: 8px 12px;
+            margin: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            display: inline-block;
         }
         
-        .date {
-            text-align: center;
-            font-size: 13px;
-            margin-top: 5px;
+        .btn:hover {
+            opacity: 0.9;
         }
         
-        /* 菜单表格布局 - 确保完全显示 */
-        .menu-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 5px;
+        .admin-btn {
+            background: #e74c3c;
         }
         
-        .menu-table td {
-            vertical-align: top;
-            padding: 0 3px;
-            width: 25%;
+        .online-btn {
+            background: #1abc9c;
+        }
+        
+        .export-btn {
+            background: #50c878;
+        }
+        
+        .print-btn {
+            background: #e67e22;
+        }
+        
+        .menu-container {
+            padding: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .category {
+            margin-bottom: 20px;
         }
         
         .category-title {
             color: #ff6b6b;
-            border-bottom: 1px solid #ff6b6b;
-            padding: 3px 0;
-            margin: 0;
-            font-size: 14px;
-            text-align: center;
+            border-bottom: 2px solid #ff6b6b;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
         
-        .item {
-            background: #f9f9f9;
-            margin-bottom: 2px;
-            padding: 4px;
-            font-size: 12px;
-            border-left: 2px solid #4a90e2;
+        .menu-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-left: 4px solid #4a90e2;
+            border-radius: 4px;
+            display: flex;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            justify-content: space-between;
+            -webkit-justify-content: space-between;
+            -ms-flex-pack: justify;
         }
         
         .item-name {
             font-weight: bold;
+            flex: 1;
+            -webkit-flex: 1;
+            -ms-flex: 1;
         }
         
         .item-price {
             color: #ff6b6b;
-            float: right;
+            font-weight: bold;
         }
         
-        /* 模态框 - 简单实现 */
-        .popup {
+        .no-menu {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+        }
+        
+        .modal {
             display: none;
             position: fixed;
             top: 0;
@@ -97,215 +148,489 @@
             width: 100%;
             height: 100%;
             background: rgba(0,0,0,0.5);
+            z-index: 1000;
         }
         
-        .popup-content {
+        .modal-content {
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 280px;
-            background: white;
-            padding: 10px;
             transform: translate(-50%, -50%);
+            -webkit-transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
-        .popup-title {
-            margin: 0 0 8px 0;
+        .modal-title {
+            margin: 0 0 15px 0;
+            color: #333;
             text-align: center;
-            font-size: 14px;
         }
         
-        .popup-input {
+        .modal-input {
             width: 100%;
-            padding: 6px;
-            margin-bottom: 6px;
-            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             box-sizing: border-box;
         }
         
-        .popup-btns {
-            text-align: center;
-            margin-top: 8px;
+        .modal-buttons {
+            display: flex;
+            display: -webkit-flex;
+            display: -ms-flexbox;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
         }
         
-        .btn {
-            background: #4a90e2;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            margin: 0 3px;
-            font-size: 12px;
+        .modal-info {
+            background: #e8f4fc;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
         }
         
-        /* 消息提示 */
-        .alert {
+        .message {
             position: fixed;
-            top: 5px;
-            right: 5px;
+            top: 20px;
+            right: 20px;
             background: #50c878;
             color: white;
-            padding: 5px 8px;
-            font-size: 12px;
+            padding: 10px 15px;
+            border-radius: 4px;
             display: none;
-            z-index: 100;
+            z-index: 1001;
+            max-width: 300px;
         }
         
-        .alert-error {
+        .message.error {
             background: #ff6b6b;
         }
+        
+        .message.info {
+            background: #3498db;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #f0f0f0;
+            border-radius: 3px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4a90e2;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s;
+            -webkit-transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .url-info {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            word-break: break-all;
+            font-size: 0.9rem;
+        }
+        
+        .url-test {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .url-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+            margin-left: 5px;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .error-status {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .loading {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        /* 兼容旧版IE的样式 */
+        .ie-hide {
+            display: none;
+        }
+        
+        @media (max-width: 480px) {
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+                display: block;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
+            }
+        }
     </style>
+    
+    <!-- 兼容IE的脚本 -->
+    <!--[if IE]>
+    <script>
+        // 为IE添加console支持
+        if (typeof console === "undefined") {
+            console = {
+                log: function() {},
+                error: function() {},
+                warn: function() {},
+                info: function() {}
+            };
+        }
+    </script>
+    <style>
+        .ie-warning {
+            background: #ffcc00;
+            color: #000;
+            padding: 10px;
+            text-align: center;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+        
+        /* 修复IE的flexbox问题 */
+        .menu-item {
+            display: block;
+            overflow: hidden;
+        }
+        
+        .item-name {
+            float: left;
+            width: 70%;
+        }
+        
+        .item-price {
+            float: right;
+            width: 30%;
+            text-align: right;
+        }
+        
+        .modal-buttons .btn {
+            display: inline-block;
+            width: auto;
+        }
+    </style>
+    <![endif]-->
 </head>
 <body>
-    <!-- 消息提示 -->
-    <div class="alert" id="alert"></div>
+    <!--[if IE]>
+    <div class="ie-warning">
+        您正在使用Internet Explorer浏览器，建议使用Chrome、Firefox等现代浏览器以获得最佳体验
+    </div>
+    <![endif]-->
     
-    <!-- 顶部栏 -->
-    <div class="topbar">
-        <div class="buttons">
-            <button class="btn-small" id="btnAdmin" onclick="showLogin()">管理</button>
-            <button class="btn-small" id="btnExit" style="display:none" onclick="exitAdmin()">退出</button>
-            <button class="btn-small" onclick="showUpdate()">更新</button>
-            <button class="btn-small" onclick="fullscreen()">全屏</button>
+    <div class="message" id="message">操作成功！</div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">餐厅菜单公示栏</h1>
+            <div class="date-display" id="current-date">正在加载...</div>
+            <div style="margin-top: 10px;">
+                <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
+                <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
+                <button class="btn" onclick="showOnlineUpdate()">在线更新</button>
+                <button class="btn" onclick="fullscreen()">全屏显示</button>
+            </div>
         </div>
-        <h1 class="title">餐厅菜单</h1>
-        <div class="date" id="dateText">加载中...</div>
+        
+        <div id="admin-controls" style="display:none;">
+            <div class="buttons">
+                <button class="btn" onclick="importExcel()">导入菜单</button>
+                <button class="btn export-btn" onclick="exportExcel()">导出菜单</button>
+                <button class="btn online-btn" onclick="showToday()">今日菜单</button>
+                <button class="btn print-btn" onclick="window.print()">打印</button>
+                <button class="btn" onclick="showChangePassword()">修改密码</button>
+            </div>
+            
+            <div class="buttons">
+                <input type="date" id="date-selector" onchange="changeDate(this.value)" style="padding:8px;border-radius:4px;border:1px solid #ddd;">
+            </div>
+        </div>
+        
+        <div class="menu-container" id="menu-container">
+            <div class="no-menu">正在加载菜单数据...</div>
+        </div>
     </div>
     
-    <!-- 日期选择（管理员可见） -->
-    <div id="adminPanel" style="display:none; text-align:center; padding:3px; background:#f0f0f0">
-        <input type="date" id="datePicker" onchange="changeDate(this.value)" style="font-size:12px; padding:3px;">
-        <div style="margin-top:3px;">
-            <button class="btn" onclick="importExcel()" style="font-size:11px; padding:3px 6px;">导入</button>
-            <button class="btn" onclick="exportExcel()" style="background:#50c878; font-size:11px; padding:3px 6px;">导出</button>
-            <button class="btn" onclick="showToday()" style="background:#1abc9c; font-size:11px; padding:3px 6px;">今日</button>
-            <button class="btn" onclick="window.print()" style="background:#e67e22; font-size:11px; padding:3px 6px;">打印</button>
-        </div>
-    </div>
-    
-    <!-- 菜单表格 - 四列布局 -->
-    <table class="menu-table" id="menuTable">
-        <tr>
-            <td>
-                <div class="category-title">主菜</div>
-                <div id="cat1"></div>
-            </td>
-            <td>
-                <div class="category-title">素菜</div>
-                <div id="cat2"></div>
-            </td>
-            <td>
-                <div class="category-title">主食</div>
-                <div id="cat3"></div>
-            </td>
-            <td>
-                <div class="category-title">汤品</div>
-                <div id="cat4"></div>
-            </td>
-        </tr>
-    </table>
-    
-    <!-- 登录弹窗 -->
-    <div class="popup" id="loginPopup">
-        <div class="popup-content">
-            <h3 class="popup-title">管理员登录</h3>
-            <input type="password" class="popup-input" id="loginPwd" placeholder="密码">
-            <div class="popup-btns">
-                <button class="btn" onclick="hidePopup('loginPopup')">取消</button>
-                <button class="btn" style="background:#50c878" onclick="doLogin()">登录</button>
+    <!-- 密码输入模态框 -->
+    <div class="modal" id="password-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">管理员登录</h3>
+            <input type="password" class="modal-input" id="password-input" placeholder="输入密码">
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideModal('password-modal')">取消</button>
+                <button class="btn export-btn" onclick="checkPassword()">登录</button>
             </div>
         </div>
     </div>
     
-    <!-- 在线更新弹窗 -->
-    <div class="popup" id="updatePopup">
-        <div class="popup-content">
-            <h3 class="popup-title">在线更新</h3>
-            <div style="font-size:11px; margin-bottom:5px;">
-                从网络获取最新菜单：
+    <!-- 在线更新模态框 -->
+    <div class="modal" id="online-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">在线更新菜单</h3>
+            
+            <div class="modal-info">
+                <strong>在线更新说明：</strong>
+                <p style="margin:5px 0 0 0;font-size:0.9rem;">从在线Excel文件获取最新菜单数据</p>
             </div>
-            <button class="btn" onclick="doUpdate()" style="width:100%; background:#1abc9c; margin-bottom:5px">
-                开始更新
-            </button>
-            <button class="btn" onclick="showFileImport()" style="width:100%; margin-bottom:5px">
-                导入文件
-            </button>
-            <div class="popup-btns">
-                <button class="btn" onclick="hidePopup('updatePopup')">关闭</button>
+            
+            <div class="url-info">
+                <strong>默认数据源：</strong>
+                <p style="margin:5px 0;font-size:0.85rem;" id="default-url">https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx</p>
+            </div>
+            
+            <div style="margin:15px 0;">
+                <label style="display:block;margin-bottom:5px;">自定义Excel链接：</label>
+                <input type="text" class="modal-input" id="custom-url" placeholder="输入Excel文件链接">
+                <div class="modal-buttons" style="margin-top:10px;">
+                    <button class="btn" onclick="testCustomUrl()">测试链接</button>
+                    <button class="btn export-btn" onclick="saveCustomUrl()">保存设置</button>
+                </div>
+            </div>
+            
+            <div class="progress-bar" id="progress-container">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-text" id="progress-text"></div>
+            
+            <div class="url-test" id="url-test">
+                <strong>连接测试结果：</strong>
+                <div id="test-result"></div>
+            </div>
+            
+            <div style="margin:20px 0;">
+                <button class="btn online-btn" style="width:100%;margin-bottom:10px;" onclick="downloadOnlineMenu()">
+                    开始在线更新
+                </button>
+                
+                <button class="btn export-btn" style="width:100%;margin-bottom:10px;" onclick="downloadExcelFile()">
+                    下载Excel文件
+                </button>
+                
+                <button class="btn" style="width:100%;" onclick="manualImport()">
+                    手动上传文件
+                </button>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideModal('online-modal')">关闭</button>
+                <button class="btn" onclick="resetToDefaultUrl()">重置为默认</button>
             </div>
         </div>
     </div>
     
-    <!-- 修改密码弹窗 -->
-    <div class="popup" id="pwdPopup">
-        <div class="popup-content">
-            <h3 class="popup-title">修改密码</h3>
-            <input type="password" class="popup-input" id="oldPwd" placeholder="原密码">
-            <input type="password" class="popup-input" id="newPwd" placeholder="新密码">
-            <div class="popup-btns">
-                <button class="btn" onclick="hidePopup('pwdPopup')">取消</button>
-                <button class="btn" style="background:#50c878" onclick="doChangePwd()">确定</button>
+    <!-- 修改密码模态框 -->
+    <div class="modal" id="change-password-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">修改密码</h3>
+            <input type="password" class="modal-input" id="old-password" placeholder="原密码">
+            <input type="password" class="modal-input" id="new-password" placeholder="新密码(至少4位)">
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideModal('change-password-modal')">取消</button>
+                <button class="btn export-btn" onclick="saveNewPassword()">确认修改</button>
             </div>
         </div>
     </div>
 
+    <!-- 使用可靠的CDN资源 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 先加载XLSX库 -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <script>
-        // ==== 全局变量 ====
-        var adminPassword = "admin123";
+        // ===== 全局变量和常量 =====
+        var ADMIN_KEY = "admin123";
+        var SYSTEM_KEY = "XGSQ364532890";
+        var DEFAULT_EXCEL_URL = "https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx";
         var menuData = {};
-        var isAdminMode = false;
+        var isAdmin = false;
         var currentDate = "";
         
-        // ==== 工具函数 ====
-        function showAlert(text, isError) {
-            var alertBox = document.getElementById("alert");
-            alertBox.textContent = text;
-            alertBox.className = "alert";
-            if (isError) alertBox.className += " alert-error";
-            alertBox.style.display = "block";
+        // ===== DOM元素引用 =====
+        var messageEl = document.getElementById('message');
+        var menuContainer = document.getElementById('menu-container');
+        var currentDateEl = document.getElementById('current-date');
+        var adminControls = document.getElementById('admin-controls');
+        var adminBtn = document.getElementById('admin-btn');
+        var exitBtn = document.getElementById('exit-btn');
+        var dateSelector = document.getElementById('date-selector');
+        var progressContainer = document.getElementById('progress-container');
+        var progressFill = document.getElementById('progress-fill');
+        var progressText = document.getElementById('progress-text');
+        var urlTestDiv = document.getElementById('url-test');
+        var testResultDiv = document.getElementById('test-result');
+        
+        // ===== 兼容性修复 =====
+        // 确保localStorage在所有浏览器中可用
+        if (typeof localStorage === 'undefined') {
+            window.localStorage = {
+                _data: {},
+                getItem: function(key) {
+                    return this._data[key] || null;
+                },
+                setItem: function(key, value) {
+                    this._data[key] = String(value);
+                },
+                removeItem: function(key) {
+                    delete this._data[key];
+                },
+                clear: function() {
+                    this._data = {};
+                }
+            };
+        }
+        
+        // 确保addEventListener在旧版IE中可用
+        if (typeof Element.prototype.addEventListener === 'undefined' && 
+            typeof Element.prototype.attachEvent !== 'undefined') {
+            Element.prototype.addEventListener = function(event, handler) {
+                var element = this;
+                event = event.replace(/^on/, '');
+                element.attachEvent('on' + event, function() {
+                    handler.call(element, window.event);
+                });
+            };
+        }
+        
+        // 确保removeEventListener在旧版IE中可用
+        if (typeof Element.prototype.removeEventListener === 'undefined' && 
+            typeof Element.prototype.detachEvent !== 'undefined') {
+            Element.prototype.removeEventListener = function(event, handler) {
+                var element = this;
+                event = event.replace(/^on/, '');
+                element.detachEvent('on' + event, handler);
+            };
+        }
+        
+        // ===== 基本工具函数 =====
+        function showMessage(text, type) {
+            messageEl.textContent = text;
+            messageEl.className = 'message';
+            
+            if (type === 'error') {
+                messageEl.classList.add('error');
+            } else if (type === 'info') {
+                messageEl.classList.add('info');
+            }
+            
+            messageEl.style.display = 'block';
             setTimeout(function() {
-                alertBox.style.display = "none";
-            }, 2000);
+                messageEl.style.display = 'none';
+            }, 3000);
         }
         
-        function showPopup(id) {
-            document.getElementById(id).style.display = "block";
+        function showModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
         }
         
-        function hidePopup(id) {
-            document.getElementById(id).style.display = "none";
+        function hideModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
         
         function getTodayString() {
-            var d = new Date();
-            var y = d.getFullYear();
-            var m = d.getMonth() + 1;
-            var day = d.getDate();
-            if (m < 10) m = "0" + m;
-            if (day < 10) day = "0" + day;
-            return y + "-" + m + "-" + day;
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = today.getMonth() + 1;
+            var day = today.getDate();
+            
+            if (month < 10) month = '0' + month;
+            if (day < 10) day = '0' + day;
+            
+            return year + '-' + month + '-' + day;
         }
         
         function formatDate(dateStr) {
-            var d = new Date(dateStr);
-            var weeks = ["日","一","二","三","四","五","六"];
-            return dateStr + " 周" + weeks[d.getDay()];
-        }
-        
-        // ==== 数据管理 ====
-        function loadData() {
             try {
-                var saved = localStorage.getItem("menuData");
-                if (saved) {
-                    menuData = JSON.parse(saved);
+                var dateParts = dateStr.split('-');
+                var year = parseInt(dateParts[0]);
+                var month = parseInt(dateParts[1]) - 1;
+                var day = parseInt(dateParts[2]);
+                
+                var date = new Date(year, month, day);
+                var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                var weekday = date.getDay();
+                
+                if (isNaN(weekday)) {
+                    return dateStr;
                 }
                 
-                var savedPwd = localStorage.getItem("adminPwd");
-                if (savedPwd) {
-                    adminPassword = savedPwd;
+                return dateStr + ' 星期' + weekdays[weekday];
+            } catch (e) {
+                return dateStr;
+            }
+        }
+        
+        // ===== 数据管理 =====
+        function loadData() {
+            try {
+                var saved = localStorage.getItem('menu_data');
+                if (saved) {
+                    menuData = JSON.parse(saved);
+                } else {
+                    // 创建示例数据
+                    createSampleData();
+                }
+                
+                var savedPassword = localStorage.getItem('admin_password');
+                if (savedPassword) {
+                    ADMIN_KEY = savedPassword;
+                }
+                
+                // 加载自定义URL
+                var savedUrl = localStorage.getItem('excel_url');
+                if (savedUrl) {
+                    document.getElementById('custom-url').value = savedUrl;
+                } else {
+                    document.getElementById('custom-url').value = '';
                 }
                 
                 return true;
-            } catch(e) {
+            } catch (e) {
+                showMessage('加载数据失败，已创建示例数据', 'error');
                 createSampleData();
                 return false;
             }
@@ -313,9 +638,10 @@
         
         function saveData() {
             try {
-                localStorage.setItem("menuData", JSON.stringify(menuData));
+                localStorage.setItem('menu_data', JSON.stringify(menuData));
                 return true;
-            } catch(e) {
+            } catch (e) {
+                showMessage('保存数据失败', 'error');
                 return false;
             }
         }
@@ -325,86 +651,74 @@
             menuData = {};
             menuData[today] = {
                 "主菜": [
-                    {name:"红烧肉", price:12},
-                    {name:"清蒸鱼", price:15},
-                    {name:"糖醋排骨", price:18}
+                    { name: "红烧肉", price: 12 },
+                    { name: "清蒸鱼", price: 15 },
+                    { name: "青椒炒猪肝", price: 10 }
                 ],
                 "素菜": [
-                    {name:"麻婆豆腐", price:5},
-                    {name:"蒜蓉西兰花", price:6}
+                    { name: "芹菜炒豆干", price: 4 },
+                    { name: "麻婆豆腐", price: 5 }
                 ],
-                "主食": [
-                    {name:"米饭", price:2},
-                    {name:"面条", price:3}
-                ],
-                "汤品": [
-                    {name:"紫菜蛋汤", price:3},
-                    {name:"番茄汤", price:3}
+                "主食汤品": [
+                    { name: "米饭+例汤", price: 2 },
+                    { name: "紫菜蛋花汤", price: 3 }
                 ]
             };
             saveData();
         }
         
-        // ==== 显示菜单 ====
+        // ===== 菜单显示 =====
         function showMenu(date) {
             currentDate = date;
-            document.getElementById("dateText").textContent = formatDate(date);
-            document.getElementById("datePicker").value = date;
+            currentDateEl.textContent = formatDate(date);
+            if (dateSelector) dateSelector.value = date;
             
             if (!menuData[date]) {
-                clearMenu();
-                showAlert("无此日数据", true);
+                menuContainer.innerHTML = '<div class="no-menu">该日期暂无菜单数据</div>';
                 return;
             }
             
-            var data = menuData[date];
-            displayCategory("cat1", data["主菜"] || []);
-            displayCategory("cat2", data["素菜"] || []);
-            displayCategory("cat3", data["主食"] || []);
-            displayCategory("cat4", data["汤品"] || []);
-        }
-        
-        function displayCategory(catId, items) {
-            var html = "";
-            for (var i = 0; i < items.length; i++) {
-                var item = items[i];
-                html += '<div class="item">';
-                html += '<span class="item-name">' + item.name + '</span>';
-                html += '<span class="item-price">' + item.price + '元</span>';
-                if (isAdminMode) {
-                    html += '<button style="font-size:10px; margin-left:3px;" onclick="editItem(\'' + catId + '\',' + i + ')">改</button>';
+            var html = '';
+            var categories = menuData[date];
+            
+            for (var category in categories) {
+                if (categories.hasOwnProperty(category)) {
+                    html += '<div class="category">';
+                    html += '<h3 class="category-title">' + category + '</h3>';
+                    html += '<div class="category-items">';
+                    
+                    var items = categories[category];
+                    for (var i = 0; i < items.length; i++) {
+                        var item = items[i];
+                        html += '<div class="menu-item">';
+                        html += '<span class="item-name">' + item.name + '</span>';
+                        html += '<span class="item-price">' + item.price + '元</span>';
+                        
+                        if (isAdmin) {
+                            html += '<button class="btn" style="margin-left:10px;padding:2px 8px;font-size:0.8rem;" onclick="editItem(\'' + date + '\', \'' + category + '\', ' + i + ')">编辑</button>';
+                        }
+                        
+                        html += '</div>';
+                    }
+                    
+                    html += '</div></div>';
                 }
-                html += '</div>';
             }
-            document.getElementById(catId).innerHTML = html;
+            
+            menuContainer.innerHTML = html;
         }
         
-        function clearMenu() {
-            for (var i = 1; i <= 4; i++) {
-                document.getElementById("cat" + i).innerHTML = "";
-            }
-        }
-        
-        function editItem(catId, index) {
-            var catMap = {
-                "cat1": "主菜",
-                "cat2": "素菜", 
-                "cat3": "主食",
-                "cat4": "汤品"
-            };
-            var catName = catMap[catId];
-            var items = menuData[currentDate][catName];
-            var item = items[index];
+        function editItem(date, category, index) {
+            var item = menuData[date][category][index];
+            var newName = prompt('修改菜品名称:', item.name);
+            if (newName === null) return;
             
-            var newName = prompt("新菜品名:", item.name);
-            if (!newName) return;
-            
-            var newPrice = prompt("新价格:", item.price);
-            if (!newPrice) return;
+            var newPrice = prompt('修改价格:', item.price);
+            if (newPrice === null) return;
             
             newPrice = parseFloat(newPrice);
             if (isNaN(newPrice)) {
-                showAlert("价格无效", true);
+                showMessage('价格必须是数字', 'error');
                 return;
             }
             
@@ -412,195 +726,408 @@
             item.price = newPrice;
             
             if (saveData()) {
-                showMenu(currentDate);
-                showAlert("修改成功");
+                showMenu(date);
+                showMessage('修改成功');
             }
         }
         
-        // ==== 管理员功能 ====
-        function showLogin() {
-            showPopup("loginPopup");
-            document.getElementById("loginPwd").focus();
+        // ===== 管理员功能 =====
+        function showPasswordModal() {
+            showModal('password-modal');
+            document.getElementById('password-input').focus();
         }
         
-        function doLogin() {
-            var input = document.getElementById("loginPwd").value;
-            if (input == adminPassword) {
-                isAdminMode = true;
-                document.getElementById("adminPanel").style.display = "block";
-                document.getElementById("btnAdmin").style.display = "none";
-                document.getElementById("btnExit").style.display = "inline-block";
-                hidePopup("loginPopup");
+        function checkPassword() {
+            var input = document.getElementById('password-input').value;
+            if (input === ADMIN_KEY) {
+                isAdmin = true;
+                adminControls.style.display = 'block';
+                adminBtn.style.display = 'none';
+                exitBtn.style.display = 'inline-block';
+                hideModal('password-modal');
                 showMenu(currentDate);
-                showAlert("管理员模式");
+                showMessage('管理员登录成功');
             } else {
-                showAlert("密码错误", true);
-                document.getElementById("loginPwd").value = "";
-                document.getElementById("loginPwd").focus();
+                showMessage('密码错误', 'error');
+                document.getElementById('password-input').value = '';
+                document.getElementById('password-input').focus();
             }
         }
         
         function exitAdmin() {
-            isAdminMode = false;
-            document.getElementById("adminPanel").style.display = "none";
-            document.getElementById("btnAdmin").style.display = "inline-block";
-            document.getElementById("btnExit").style.display = "none";
+            isAdmin = false;
+            adminControls.style.display = 'none';
+            adminBtn.style.display = 'inline-block';
+            exitBtn.style.display = 'none';
             showMenu(currentDate);
-            showAlert("退出管理");
+            showMessage('已退出管理员模式');
         }
         
-        function showUpdate() {
-            showPopup("updatePopup");
+        function showChangePassword() {
+            if (!isAdmin) {
+                showPasswordModal();
+                return;
+            }
+            showModal('change-password-modal');
+            document.getElementById('old-password').focus();
         }
         
-        // ==== Excel操作 ====
+        function saveNewPassword() {
+            var oldPass = document.getElementById('old-password').value;
+            var newPass = document.getElementById('new-password').value;
+            
+            if (oldPass !== ADMIN_KEY) {
+                showMessage('原密码错误', 'error');
+                return;
+            }
+            
+            if (newPass.length < 4) {
+                showMessage('新密码至少4位', 'error');
+                return;
+            }
+            
+            ADMIN_KEY = newPass;
+            localStorage.setItem('admin_password', newPass);
+            hideModal('change-password-modal');
+            document.getElementById('old-password').value = '';
+            document.getElementById('new-password').value = '';
+            showMessage('密码修改成功');
+        }
+        
+        // ===== Excel操作 =====
         function importExcel() {
-            var input = document.createElement("input");
-            input.type = "file";
-            input.accept = ".xlsx,.xls";
+            if (!isAdmin) {
+                showPasswordModal();
+                return;
+            }
+            
+            // 检查XLSX库是否可用
+            if (typeof XLSX === 'undefined') {
+                showMessage('Excel功能不可用，请检查网络连接', 'error');
+                return;
+            }
+            
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx, .xls';
             
             input.onchange = function(e) {
                 var file = e.target.files[0];
                 if (!file) return;
                 
-                var reader = new FileReader();
-                reader.onload = function(e) {
-                    try {
-                        // 简单解析
-                        var data = e.target.result;
-                        showAlert("解析中...");
-                        
-                        // 模拟数据更新
-                        var newData = {
-                            "主菜": [
-                                {name:"红烧肉", price:12},
-                                {name:"清蒸鱼", price:15}
-                            ],
-                            "素菜": [
-                                {name:"麻婆豆腐", price:5},
-                                {name:"蒜蓉西兰花", price:6}
-                            ],
-                            "主食": [
-                                {name:"米饭", price:2}
-                            ],
-                            "汤品": [
-                                {name:"紫菜汤", price:3}
-                            ]
-                        };
-                        
-                        menuData[currentDate] = newData;
-                        if (saveData()) {
-                            showMenu(currentDate);
-                            showAlert("导入成功");
-                        }
-                    } catch(err) {
-                        showAlert("导入失败", true);
-                    }
-                };
-                reader.readAsBinaryString(file);
+                processExcelFile(file, currentDate);
             };
             
             input.click();
         }
         
+        function processExcelFile(file, dateStr) {
+            if (typeof XLSX === 'undefined') {
+                showMessage('Excel库加载失败，请检查网络', 'error');
+                return;
+            }
+            
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                    var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                    
+                    var newMenu = {};
+                    for (var i = 1; i < jsonData.length; i++) {
+                        var row = jsonData[i];
+                        if (row && row.length >= 3) {
+                            var category = row[0] || '菜单';
+                            var name = row[1];
+                            var price = row[2];
+                            
+                            if (name && price !== undefined) {
+                                if (!newMenu[category]) {
+                                    newMenu[category] = [];
+                                }
+                                
+                                newMenu[category].push({
+                                    name: String(name).trim(),
+                                    price: Number(price) || 0
+                                });
+                            }
+                        }
+                    }
+                    
+                    menuData[dateStr] = newMenu;
+                    
+                    if (saveData()) {
+                        showMenu(dateStr);
+                        showMessage('导入成功');
+                    }
+                } catch (error) {
+                    console.error(error);
+                    showMessage('导入失败: ' + error.message, 'error');
+                }
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
         function exportExcel() {
-            var data = menuData[currentDate];
-            if (!data) {
-                showAlert("无数据", true);
+            if (!isAdmin) {
+                showPasswordModal();
                 return;
             }
             
-            var content = "分类,菜品,价格\n";
-            
-            var cats = ["主菜","素菜","主食","汤品"];
-            for (var i = 0; i < cats.length; i++) {
-                var cat = cats[i];
-                var items = data[cat] || [];
-                for (var j = 0; j < items.length; j++) {
-                    content += cat + "," + items[j].name + "," + items[j].price + "\n";
-                }
+            // 检查XLSX库是否可用
+            if (typeof XLSX === 'undefined') {
+                showMessage('Excel功能不可用，请检查网络连接', 'error');
+                return;
             }
             
-            var blob = new Blob([content], {type: "text/csv"});
-            var link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = "菜单_" + currentDate + ".csv";
-            link.click();
+            var menu = menuData[currentDate];
+            if (!menu) {
+                showMessage('没有菜单数据', 'error');
+                return;
+            }
             
-            showAlert("导出完成");
-        }
-        
-        function showFileImport() {
-            importExcel();
-        }
-        
-        // ==== 在线更新 ====
-        function doUpdate() {
-            showAlert("正在更新...");
-            
-            // 模拟网络请求
-            setTimeout(function() {
-                var newData = {
-                    "主菜": [
-                        {name:"红烧肉", price:12},
-                        {name:"清蒸鱼", price:15},
-                        {name:"糖醋里脊", price:16}
-                    ],
-                    "素菜": [
-                        {name:"麻婆豆腐", price:5},
-                        {name:"蒜蓉西兰花", price:6},
-                        {name:"清炒时蔬", price:5}
-                    ],
-                    "主食": [
-                        {name:"米饭", price:2},
-                        {name:"馒头", price:1}
-                    ],
-                    "汤品": [
-                        {name:"紫菜蛋汤", price:3},
-                        {name:"番茄蛋汤", price:3}
-                    ]
-                };
+            try {
+                var data = [['类别', '菜品名称', '价格(元)']];
                 
-                menuData[currentDate] = newData;
-                if (saveData()) {
-                    showMenu(currentDate);
-                    showAlert("更新成功");
-                    hidePopup("updatePopup");
+                for (var category in menu) {
+                    if (menu.hasOwnProperty(category)) {
+                        var items = menu[category];
+                        for (var i = 0; i < items.length; i++) {
+                            var item = items[i];
+                            data.push([category, item.name, item.price]);
+                        }
+                    }
                 }
-            }, 1500);
+                
+                var ws = XLSX.utils.aoa_to_sheet(data);
+                var wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, '菜单');
+                
+                var fileName = '菜单_' + currentDate + '.xlsx';
+                XLSX.writeFile(wb, fileName);
+                
+                showMessage('导出成功: ' + fileName);
+            } catch (error) {
+                showMessage('导出失败: ' + error.message, 'error');
+            }
         }
         
-        // ==== 密码管理 ====
-        function changePwd() {
-            showPopup("pwdPopup");
-            document.getElementById("oldPwd").focus();
+        // ===== 在线更新功能 =====
+        function showOnlineUpdate() {
+            showModal('online-modal');
+            urlTestDiv.style.display = 'none';
+            progressContainer.style.display = 'none';
         }
         
-        function doChangePwd() {
-            var oldPwd = document.getElementById("oldPwd").value;
-            var newPwd = document.getElementById("newPwd").value;
-            
-            if (oldPwd != adminPassword) {
-                showAlert("原密码错", true);
+        function getExcelUrl() {
+            var customUrl = document.getElementById('custom-url').value.trim();
+            return customUrl || DEFAULT_EXCEL_URL;
+        }
+        
+        function testCustomUrl() {
+            var url = getExcelUrl();
+            if (!url) {
+                showMessage('请输入Excel文件链接', 'error');
                 return;
             }
             
-            if (newPwd.length < 4) {
-                showAlert("至少4位", true);
-                return;
-            }
+            urlTestDiv.style.display = 'block';
+            testResultDiv.innerHTML = '<div style="margin:5px 0;">测试连接中... <span class="url-status loading">测试中</span></div>';
             
-            adminPassword = newPwd;
-            localStorage.setItem("adminPwd", newPwd);
-            hidePopup("pwdPopup");
-            showAlert("密码已改");
+            // 使用XMLHttpRequest，兼容性更好
+            var xhr = new XMLHttpRequest();
+            xhr.open('HEAD', url);
+            xhr.timeout = 5000;
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    testResultDiv.innerHTML = '<div style="margin:5px 0;">连接成功! <span class="url-status success">可用</span></div>';
+                    showMessage('链接测试成功', 'info');
+                } else {
+                    testResultDiv.innerHTML = '<div style="margin:5px 0;">连接失败 (HTTP ' + xhr.status + ') <span class="url-status error-status">不可用</span></div>';
+                    showMessage('链接测试失败', 'error');
+                }
+            };
+            
+            xhr.onerror = function() {
+                testResultDiv.innerHTML = '<div style="margin:5px 0;">网络错误 <span class="url-status error-status">不可用</span></div>';
+                showMessage('网络连接失败', 'error');
+            };
+            
+            xhr.ontimeout = function() {
+                testResultDiv.innerHTML = '<div style="margin:5px 0;">连接超时 <span class="url-status error-status">超时</span></div>';
+                showMessage('连接超时', 'error');
+            };
+            
+            try {
+                xhr.send();
+            } catch (e) {
+                testResultDiv.innerHTML = '<div style="margin:5px 0;">请求失败: ' + e.message + ' <span class="url-status error-status">错误</span></div>';
+                showMessage('请求失败: ' + e.message, 'error');
+            }
         }
         
-        // ==== 其他功能 ====
+        function saveCustomUrl() {
+            var url = document.getElementById('custom-url').value.trim();
+            if (url) {
+                localStorage.setItem('excel_url', url);
+                showMessage('自定义链接已保存', 'info');
+            } else {
+                localStorage.removeItem('excel_url');
+                showMessage('已清除自定义链接', 'info');
+            }
+        }
+        
+        function resetToDefaultUrl() {
+            if (confirm('确定要重置为默认链接吗？')) {
+                document.getElementById('custom-url').value = '';
+                localStorage.removeItem('excel_url');
+                showMessage('已重置为默认链接', 'info');
+            }
+        }
+        
+        function downloadOnlineMenu() {
+            var url = getExcelUrl();
+            
+            showProgress(10, '正在连接服务器...');
+            
+            // 使用XMLHttpRequest下载文件
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.responseType = 'arraybuffer';
+            xhr.timeout = 10000;
+            
+            xhr.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    var percent = Math.round((e.loaded / e.total) * 100);
+                    showProgress(10 + percent * 0.8, '下载中... ' + percent + '%');
+                }
+            };
+            
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    showProgress(90, '解析Excel数据...');
+                    
+                    try {
+                        // 获取当前日期（用于导入）
+                        var today = getTodayString();
+                        var data = new Uint8Array(xhr.response);
+                        var workbook = XLSX.read(data, { type: 'array' });
+                        
+                        // 处理所有工作表（整周数据）
+                        var newData = {};
+                        var sheetNames = workbook.SheetNames;
+                        
+                        for (var s = 0; s < sheetNames.length; s++) {
+                            var sheetName = sheetNames[s];
+                            var worksheet = workbook.Sheets[sheetName];
+                            var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                            
+                            var newMenu = {};
+                            for (var i = 1; i < jsonData.length; i++) {
+                                var row = jsonData[i];
+                                if (row && row.length >= 3) {
+                                    var category = row[0] || '菜单';
+                                    var name = row[1];
+                                    var price = row[2];
+                                    
+                                    if (name && price !== undefined) {
+                                        if (!newMenu[category]) {
+                                            newMenu[category] = [];
+                                        }
+                                        
+                                        newMenu[category].push({
+                                            name: String(name).trim(),
+                                            price: Number(price) || 0
+                                        });
+                                    }
+                                }
+                            }
+                            
+                            // 使用工作表名作为日期，如果没有有效工作表名则使用today
+                            var dateKey = sheetName && sheetName.match(/\d{4}-\d{2}-\d{2}/) ? sheetName : today;
+                            newData[dateKey] = newMenu;
+                        }
+                        
+                        // 合并到现有数据
+                        for (var dateKey in newData) {
+                            if (newData.hasOwnProperty(dateKey)) {
+                                menuData[dateKey] = newData[dateKey];
+                            }
+                        }
+                        
+                        if (saveData()) {
+                            showProgress(100, '更新完成！');
+                            setTimeout(function() {
+                                progressContainer.style.display = 'none';
+                                showMenu(currentDate);
+                                showMessage('在线更新成功！', 'info');
+                            }, 1000);
+                        }
+                    } catch (error) {
+                        progressContainer.style.display = 'none';
+                        showMessage('解析失败: ' + error.message, 'error');
+                    }
+                } else {
+                    progressContainer.style.display = 'none';
+                    showMessage('下载失败: HTTP ' + xhr.status, 'error');
+                }
+            };
+            
+            xhr.onerror = function() {
+                progressContainer.style.display = 'none';
+                showMessage('网络错误，下载失败', 'error');
+            };
+            
+            xhr.ontimeout = function() {
+                progressContainer.style.display = 'none';
+                showMessage('连接超时，下载失败', 'error');
+            };
+            
+            try {
+                xhr.send();
+            } catch (e) {
+                progressContainer.style.display = 'none';
+                showMessage('请求失败: ' + e.message, 'error');
+            }
+        }
+        
+        function downloadExcelFile() {
+            var url = getExcelUrl();
+            window.open(url, '_blank');
+            showMessage('已在浏览器中打开Excel文件', 'info');
+        }
+        
+        function manualImport() {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx, .xls';
+            
+            input.onchange = function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                
+                hideModal('online-modal');
+                processExcelFile(file, currentDate);
+            };
+            
+            input.click();
+        }
+        
+        function showProgress(percent, text) {
+            progressContainer.style.display = 'block';
+            progressFill.style.width = percent + '%';
+            progressText.textContent = text;
+        }
+        
+        // ===== 其他功能 =====
         function showToday() {
             var today = getTodayString();
             showMenu(today);
-            showAlert("显示今日");
+            showMessage('已显示今日菜单', 'info');
         }
         
         function changeDate(date) {
@@ -613,15 +1140,47 @@
             var elem = document.documentElement;
             if (elem.requestFullscreen) {
                 elem.requestFullscreen();
-            } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
             } else if (elem.mozRequestFullScreen) {
                 elem.mozRequestFullScreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
             }
         }
         
-        // ==== 初始化 ====
+        // ===== 忘记密码功能 =====
+        function forgotPassword() {
+            var key = prompt('请输入系统密钥重置密码:');
+            if (key === SYSTEM_KEY) {
+                ADMIN_KEY = 'admin123';
+                localStorage.setItem('admin_password', 'admin123');
+                showMessage('密码已重置为: admin123', 'info');
+            } else if (key) {
+                showMessage('密钥错误', 'error');
+            }
+        }
+        
+        // ===== 初始化 =====
         function init() {
+            // 显示加载中
+            showMessage('正在加载系统...', 'info');
+            
+            // 检查XLSX库
+            if (typeof XLSX === 'undefined') {
+                showMessage('注意: Excel功能需要网络连接', 'error');
+                // 尝试动态加载
+                var script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+                script.onload = function() {
+                    showMessage('Excel库加载成功', 'info');
+                };
+                script.onerror = function() {
+                    showMessage('Excel库加载失败，部分功能不可用', 'error');
+                };
+                document.head.appendChild(script);
+            }
+            
             // 加载数据
             if (!loadData()) {
                 createSampleData();
@@ -631,42 +1190,66 @@
             var today = getTodayString();
             showMenu(today);
             
-            // 点击弹窗外部关闭
-            var popups = document.getElementsByClassName("popup");
-            for (var i = 0; i < popups.length; i++) {
-                popups[i].onclick = function(e) {
-                    if (e.target == this) {
-                        this.style.display = "none";
-                    }
-                };
+            // 显示默认URL
+            document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
+            
+            // 添加右键菜单
+            document.addEventListener('contextmenu', function(e) {
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    e.preventDefault();
+                }
+            });
+            
+            // 长按重置密码（移动端）
+            var longPressTimer;
+            
+            if (adminBtn.addEventListener) {
+                adminBtn.addEventListener('touchstart', function() {
+                    longPressTimer = setTimeout(function() {
+                        forgotPassword();
+                    }, 3000);
+                });
+                
+                adminBtn.addEventListener('touchend', function() {
+                    clearTimeout(longPressTimer);
+                });
+                
+                adminBtn.addEventListener('touchmove', function() {
+                    clearTimeout(longPressTimer);
+                });
             }
             
-            // 回车键登录
-            document.getElementById("loginPwd").onkeypress = function(e) {
-                if (e.key == "Enter") doLogin();
-            };
+            // 点击模态框外部关闭
+            var modals = document.querySelectorAll('.modal');
+            for (var i = 0; i < modals.length; i++) {
+                modals[i].addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.style.display = 'none';
+                    }
+                });
+            }
             
-            showAlert("系统就绪");
+            // ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    hideModal('password-modal');
+                    hideModal('online-modal');
+                    hideModal('change-password-modal');
+                }
+            });
+            
+            // 显示欢迎信息
+            setTimeout(function() {
+                showMessage('餐厅菜单系统已加载完成');
+            }, 1000);
         }
         
-        // 启动
-        if (document.readyState == "loading") {
-            document.addEventListener("DOMContentLoaded", init);
+        // 页面加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
         } else {
             init();
         }
-        
-        // 绑定修改密码到右上角按钮（长按）
-        document.getElementById("btnAdmin").addEventListener("contextmenu", function(e) {
-            e.preventDefault();
-            var key = prompt("系统密钥:");
-            if (key == "XGSQ364532890") {
-                adminPassword = "admin123";
-                localStorage.setItem("adminPwd", "admin123");
-                showAlert("密码已重置");
-            }
-            return false;
-        });
     </script>
 </body>
 </html>
