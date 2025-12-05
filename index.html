@@ -10,8 +10,6 @@
             margin: 0;
             padding: 10px;
             background: #f0f0f0;
-            height: 100vh;
-            overflow: hidden;
         }
         
         .container {
@@ -19,9 +17,7 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
-            height: calc(100vh - 20px);
-            display: flex;
-            flex-direction: column;
+            margin-bottom: 20px;
         }
         
         .header {
@@ -29,7 +25,6 @@
             color: white;
             padding: 15px;
             text-align: center;
-            flex-shrink: 0;
         }
         
         .title {
@@ -51,7 +46,6 @@
             background: #f8f8f8;
             border-bottom: 1px solid #ddd;
             text-align: center;
-            flex-shrink: 0;
         }
         
         .btn {
@@ -81,18 +75,15 @@
             background: #e67e22;
         }
         
-        /* ===== 修改菜单容器为四列布局，扩大显示空间 ===== */
+        /* ===== 修改菜单容器为四列布局 ===== */
         .menu-container {
             padding: 15px;
-            flex: 1;
-            overflow-y: auto;
         }
         
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
-            height: 100%;
         }
         
         /* 响应式：平板设备显示2列 */
@@ -114,9 +105,6 @@
             border-radius: 8px;
             padding: 15px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            height: fit-content;
-            max-height: 100%;
-            overflow-y: auto;
         }
         
         .category-title {
@@ -126,10 +114,6 @@
             margin-bottom: 15px;
             font-size: 1.1rem;
             text-align: center;
-            position: sticky;
-            top: 0;
-            background: #f8f9fa;
-            z-index: 1;
         }
         
         .menu-item {
@@ -141,12 +125,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s;
-        }
-        
-        .menu-item:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
         
         .item-name {
@@ -181,8 +159,6 @@
             padding: 30px;
             color: #777;
             grid-column: 1 / -1;
-            align-self: center;
-            justify-self: center;
         }
         
         /* 模态框样式保持不变 */
@@ -337,14 +313,6 @@
             .modal-content {
                 width: 95%;
                 padding: 15px;
-            }
-            
-            body {
-                padding: 5px;
-            }
-            
-            .container {
-                height: calc(100vh - 10px);
             }
         }
     </style>
@@ -586,26 +554,22 @@
                         { name: "红烧肉", price: 12 },
                         { name: "清蒸鱼", price: 15 },
                         { name: "青椒炒猪肝", price: 10 },
-                        { name: "宫保鸡丁", price: 11 },
-                        { name: "鱼香肉丝", price: 10 }
+                        { name: "宫保鸡丁", price: 11 }
                     ],
                     "素菜": [
                         { name: "芹菜炒豆干", price: 4 },
                         { name: "麻婆豆腐", price: 5 },
-                        { name: "蒜蓉西兰花", price: 6 },
-                        { name: "地三鲜", price: 5 }
+                        { name: "蒜蓉西兰花", price: 6 }
                     ],
                     "主食": [
                         { name: "米饭", price: 2 },
                         { name: "馒头", price: 1 },
-                        { name: "花卷", price: 1 },
-                        { name: "面条", price: 3 }
+                        { name: "花卷", price: 1 }
                     ],
                     "汤品": [
                         { name: "紫菜蛋花汤", price: 3 },
                         { name: "西红柿鸡蛋汤", price: 3 },
-                        { name: "酸辣汤", price: 4 },
-                        { name: "玉米排骨汤", price: 6 }
+                        { name: "酸辣汤", price: 4 }
                     ]
                 }
             };
@@ -658,43 +622,6 @@
                 }
                 
                 html += '</div></div>';
-            }
-            
-            // 如果有其他分类，添加到新增的列中
-            var otherCategories = [];
-            for (var category in categories) {
-                if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                    otherCategories.push(category);
-                }
-            }
-            
-            // 如果有其他分类，为每个分类创建独立的列
-            if (otherCategories.length > 0) {
-                for (var k = 0; k < otherCategories.length; k++) {
-                    var category = otherCategories[k];
-                    var items = categories[category];
-                    
-                    html += '<div class="category-column">';
-                    html += '<h3 class="category-title">' + category + '</h3>';
-                    html += '<div class="category-items">';
-                    
-                    for (var j = 0; j < items.length; j++) {
-                        var item = items[j];
-                        html += '<div class="menu-item">';
-                        html += '<span class="item-name">' + item.name + '</span>';
-                        html += '<span class="item-price">' + item.price + '元</span>';
-                        
-                        if (isAdmin) {
-                            html += '<div class="item-actions">';
-                            html += '<button class="edit-btn" onclick="editItem(\'' + date + '\', \'' + category + '\', ' + j + ')">编辑</button>';
-                            html += '</div>';
-                        }
-                        
-                        html += '</div>';
-                    }
-                    
-                    html += '</div></div>';
-                }
             }
             
             html += '</div>'; // 关闭menu-grid
@@ -835,11 +762,9 @@
                             var price = row[2];
                             
                             if (name && price !== undefined) {
-                                // 如果分类不在固定分类中，添加到新的分类
+                                // 确保分类是四个固定分类之一
                                 if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                    if (!newMenu[category]) {
-                                        newMenu[category] = [];
-                                    }
+                                    category = '主菜'; // 默认归类到主菜
                                 }
                                 
                                 newMenu[category].push({
@@ -885,22 +810,11 @@
             try {
                 var data = [['类别', '菜品名称', '价格(元)']];
                 
-                // 先导出固定分类
+                // 导出固定分类
                 for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
                     var category = FIXED_CATEGORIES[i];
                     var items = menu[category];
                     if (items) {
-                        for (var j = 0; j < items.length; j++) {
-                            var item = items[j];
-                            data.push([category, item.name, item.price]);
-                        }
-                    }
-                }
-                
-                // 再导出其他分类
-                for (var category in menu) {
-                    if (menu.hasOwnProperty(category) && FIXED_CATEGORIES.indexOf(category) === -1) {
-                        var items = menu[category];
                         for (var j = 0; j < items.length; j++) {
                             var item = items[j];
                             data.push([category, item.name, item.price]);
@@ -1042,11 +956,9 @@
                                     var price = row[2];
                                     
                                     if (name && price !== undefined) {
-                                        // 如果分类不在固定分类中，添加到新的分类
+                                        // 确保分类是四个固定分类之一
                                         if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                            if (!newMenu[category]) {
-                                                newMenu[category] = [];
-                                            }
+                                            category = '主菜'; // 默认归类到主菜
                                         }
                                         
                                         newMenu[category].push({
@@ -1169,74 +1081,94 @@
         
         // ===== 初始化 =====
         function init() {
-            showMessage('正在加载系统...', 'info');
+            console.log('正在初始化...');
             
+            // 检查XLSX库
             if (!window.XLSX) {
-                showMessage('注意: Excel功能需要网络连接', 'error');
+                console.warn('XLSX库未加载，尝试动态加载');
+                showMessage('注意: Excel功能需要网络连接', 'info');
                 var script = document.createElement('script');
                 script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
                 script.onload = function() {
+                    console.log('XLSX库加载成功');
                     showMessage('Excel库加载成功', 'info');
+                    continueInit();
                 };
                 script.onerror = function() {
+                    console.error('XLSX库加载失败');
                     showMessage('Excel库加载失败，部分功能不可用', 'error');
+                    continueInit();
                 };
                 document.head.appendChild(script);
+            } else {
+                continueInit();
             }
             
-            if (!loadData()) {
-                createSampleData();
-            }
-            
-            var today = getTodayString();
-            showMenu(today);
-            
-            document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
-            
-            document.addEventListener('contextmenu', function(e) {
-                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                    e.preventDefault();
+            function continueInit() {
+                // 加载数据
+                if (!loadData()) {
+                    createSampleData();
                 }
-            });
-            
-            var longPressTimer;
-            
-            adminBtn.addEventListener('touchstart', function() {
-                longPressTimer = setTimeout(function() {
-                    forgotPassword();
-                }, 3000);
-            });
-            
-            adminBtn.addEventListener('touchend', function() {
-                clearTimeout(longPressTimer);
-            });
-            
-            adminBtn.addEventListener('touchmove', function() {
-                clearTimeout(longPressTimer);
-            });
-            
-            var modals = document.querySelectorAll('.modal');
-            for (var i = 0; i < modals.length; i++) {
-                modals[i].addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.style.display = 'none';
+                
+                // 显示今日菜单
+                var today = getTodayString();
+                showMenu(today);
+                
+                // 显示默认URL
+                document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
+                
+                // 添加右键菜单
+                document.addEventListener('contextmenu', function(e) {
+                    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                        e.preventDefault();
                     }
                 });
-            }
-            
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    hideModal('password-modal');
-                    hideModal('online-modal');
-                    hideModal('change-password-modal');
+                
+                // 长按重置密码
+                var longPressTimer;
+                
+                adminBtn.addEventListener('touchstart', function() {
+                    longPressTimer = setTimeout(function() {
+                        forgotPassword();
+                    }, 3000);
+                });
+                
+                adminBtn.addEventListener('touchend', function() {
+                    clearTimeout(longPressTimer);
+                });
+                
+                adminBtn.addEventListener('touchmove', function() {
+                    clearTimeout(longPressTimer);
+                });
+                
+                // 点击模态框外部关闭
+                var modals = document.querySelectorAll('.modal');
+                for (var i = 0; i < modals.length; i++) {
+                    modals[i].addEventListener('click', function(e) {
+                        if (e.target === this) {
+                            this.style.display = 'none';
+                        }
+                    });
                 }
-            });
-            
-            setTimeout(function() {
-                showMessage('餐厅菜单系统已加载完成');
-            }, 1000);
+                
+                // ESC键关闭模态框
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        hideModal('password-modal');
+                        hideModal('online-modal');
+                        hideModal('change-password-modal');
+                    }
+                });
+                
+                // 显示欢迎信息
+                setTimeout(function() {
+                    showMessage('餐厅菜单系统已加载完成');
+                    console.log('初始化完成');
+                }, 500);
+            }
         }
         
+        // 页面加载完成后初始化
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
