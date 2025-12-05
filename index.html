@@ -2,1760 +2,1066 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>餐厅菜单公示栏</title>
-    
-    <!-- 核心兼容性Polyfill -->
-    <script>
-    // 立即执行的兼容性检测和修复
-    (function() {
-        // 1. 检测并加载必要的polyfill
-        var needsPolyfill = [];
-        
-        // 检查Promise
-        if (typeof Promise === 'undefined') {
-            needsPolyfill.push('promise');
-        }
-        
-        // 检查fetch
-        if (typeof fetch === 'undefined') {
-            needsPolyfill.push('fetch');
-        }
-        
-        // 检查URLSearchParams
-        if (typeof URLSearchParams === 'undefined') {
-            needsPolyfill.push('urlparams');
-        }
-        
-        // 检查Object.assign
-        if (typeof Object.assign !== 'function') {
-            needsPolyfill.push('assign');
-        }
-        
-        // 检查Array.from
-        if (typeof Array.from === 'undefined') {
-            needsPolyfill.push('arrayfrom');
-        }
-        
-        // 检查Element.prototype.closest
-        if (typeof Element.prototype.closest === 'undefined') {
-            needsPolyfill.push('closest');
-        }
-        
-        // 如果检测到缺失，显示加载状态并动态加载polyfill
-        if (needsPolyfill.length > 0) {
-            console.log('检测到需要polyfill:', needsPolyfill);
-            
-            // 创建加载遮罩
-            var loader = document.createElement('div');
-            loader.id = 'polyfill-loader';
-            loader.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:#fff;z-index:9999;display:flex;justify-content:center;align-items:center;flex-direction:column;font-family:Arial,sans-serif;';
-            loader.innerHTML = '<div style="font-size:20px;margin-bottom:20px;color:#3498db;">正在加载兼容性组件...</div>' +
-                              '<div style="width:200px;height:4px;background:#eee;border-radius:2px;">' +
-                              '<div id="polyfill-progress" style="width:0%;height:100%;background:#3498db;border-radius:2px;transition:width 0.3s;"></div>' +
-                              '</div>' +
-                              '<div style="margin-top:10px;font-size:12px;color:#666;">请稍候，正在优化浏览器兼容性</div>';
-            document.body.appendChild(loader);
-            
-            // 动态加载polyfill
-            var scripts = [];
-            var progress = 0;
-            
-            if (needsPolyfill.includes('promise')) {
-                scripts.push('https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.min.js');
-            }
-            if (needsPolyfill.includes('fetch')) {
-                scripts.push('https://cdn.jsdelivr.net/npm/whatwg-fetch@3.6.2/dist/fetch.umd.min.js');
-            }
-            if (needsPolyfill.includes('urlparams')) {
-                scripts.push('https://cdn.jsdelivr.net/npm/url-search-params-polyfill@8.2.0/index.js');
-            }
-            
-            // 按顺序加载
-            function loadNextScript(index) {
-                if (index >= scripts.length) {
-                    // 所有脚本加载完成
-                    setTimeout(function() {
-                        var loader = document.getElementById('polyfill-loader');
-                        if (loader) {
-                            loader.style.opacity = '0';
-                            loader.style.transition = 'opacity 0.5s';
-                            setTimeout(function() {
-                                if (loader.parentNode) {
-                                    loader.parentNode.removeChild(loader);
-                                }
-                            }, 500);
-                        }
-                    }, 500);
-                    return;
-                }
-                
-                var script = document.createElement('script');
-                script.src = scripts[index];
-                script.onload = function() {
-                    progress = ((index + 1) / scripts.length) * 100;
-                    var progressBar = document.getElementById('polyfill-progress');
-                    if (progressBar) {
-                        progressBar.style.width = progress + '%';
-                    }
-                    loadNextScript(index + 1);
-                };
-                script.onerror = function() {
-                    console.warn('Polyfill加载失败:', scripts[index]);
-                    loadNextScript(index + 1);
-                };
-                document.head.appendChild(script);
-            }
-            
-            // 先加载内联polyfill
-            loadInlinePolyfills();
-            
-            // 然后加载外部polyfill
-            setTimeout(function() {
-                loadNextScript(0);
-            }, 100);
-        }
-        
-        // 内联polyfill（关键功能）
-        function loadInlinePolyfills() {
-            // Object.assign polyfill
-            if (typeof Object.assign !== 'function') {
-                Object.assign = function(target, varArgs) {
-                    if (target == null) {
-                        throw new TypeError('Cannot convert undefined or null to object');
-                    }
-                    var to = Object(target);
-                    for (var index = 1; index < arguments.length; index++) {
-                        var nextSource = arguments[index];
-                        if (nextSource != null) {
-                            for (var nextKey in nextSource) {
-                                if (Object.prototype.hasOwnProperty.call(nextSource, nextKey)) {
-                                    to[nextKey] = nextSource[nextKey];
-                                }
-                            }
-                        }
-                    }
-                    return to;
-                };
-            }
-            
-            // Array.from polyfill
-            if (!Array.from) {
-                Array.from = (function () {
-                    var toStr = Object.prototype.toString;
-                    var isCallable = function (fn) {
-                        return typeof fn === 'function' || toStr.call(fn) === '[object Function]';
-                    };
-                    var toInteger = function (value) {
-                        var number = Number(value);
-                        if (isNaN(number)) { return 0; }
-                        if (number === 0 || !isFinite(number)) { return number; }
-                        return (number > 0 ? 1 : -1) * Math.floor(Math.abs(number));
-                    };
-                    var maxSafeInteger = Math.pow(2, 53) - 1;
-                    var toLength = function (value) {
-                        var len = toInteger(value);
-                        return Math.min(Math.max(len, 0), maxSafeInteger);
-                    };
-                    
-                    return function from(arrayLike, mapFn, thisArg) {
-                        var C = this;
-                        var items = Object(arrayLike);
-                        if (arrayLike == null) {
-                            throw new TypeError('Array.from requires an array-like object - not null or undefined');
-                        }
-                        var mapFn = arguments.length > 1 ? arguments[1] : void undefined;
-                        var T;
-                        if (typeof mapFn !== 'undefined') {
-                            if (!isCallable(mapFn)) {
-                                throw new TypeError('Array.from: when provided, the second argument must be a function');
-                            }
-                            if (arguments.length > 2) {
-                                T = arguments[2];
-                            }
-                        }
-                        var len = toLength(items.length);
-                        var A = isCallable(C) ? Object(new C(len)) : new Array(len);
-                        var k = 0;
-                        var kValue;
-                        while (k < len) {
-                            kValue = items[k];
-                            if (mapFn) {
-                                A[k] = typeof T === 'undefined' ? mapFn(kValue, k) : mapFn.call(T, kValue, k);
-                            } else {
-                                A[k] = kValue;
-                            }
-                            k += 1;
-                        }
-                        A.length = len;
-                        return A;
-                    };
-                }());
-            }
-            
-            // NodeList.forEach polyfill
-            if (window.NodeList && !NodeList.prototype.forEach) {
-                NodeList.prototype.forEach = Array.prototype.forEach;
-            }
-            
-            // Element.closest polyfill
-            if (!Element.prototype.closest) {
-                Element.prototype.closest = function(s) {
-                    var el = this;
-                    if (!document.documentElement.contains(el)) return null;
-                    do {
-                        if (el.matches(s)) return el;
-                        el = el.parentElement || el.parentNode;
-                    } while (el !== null && el.nodeType === 1);
-                    return null;
-                };
-            }
-            
-            // String.includes polyfill
-            if (!String.prototype.includes) {
-                String.prototype.includes = function(search, start) {
-                    if (typeof start !== 'number') {
-                        start = 0;
-                    }
-                    if (start + search.length > this.length) {
-                        return false;
-                    } else {
-                        return this.indexOf(search, start) !== -1;
-                    }
-                };
-            }
-            
-            // Array.includes polyfill
-            if (!Array.prototype.includes) {
-                Object.defineProperty(Array.prototype, 'includes', {
-                    value: function(searchElement, fromIndex) {
-                        if (this == null) {
-                            throw new TypeError('"this" is null or not defined');
-                        }
-                        var o = Object(this);
-                        var len = o.length >>> 0;
-                        if (len === 0) {
-                            return false;
-                        }
-                        var n = fromIndex | 0;
-                        var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
-                        function sameValueZero(x, y) {
-                            return x === y || (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y));
-                        }
-                        while (k < len) {
-                            if (sameValueZero(o[k], searchElement)) {
-                                return true;
-                            }
-                            k++;
-                        }
-                        return false;
-                    }
-                });
-            }
-            
-            // classList polyfill for IE9
-            if (!("classList" in document.documentElement)) {
-                Object.defineProperty(HTMLElement.prototype, 'classList', {
-                    get: function() {
-                        var self = this;
-                        function update(fn) {
-                            return function(value) {
-                                var classes = self.className.split(/\s+/g);
-                                var index = classes.indexOf(value);
-                                
-                                fn(classes, index, value);
-                                self.className = classes.join(" ");
-                            };
-                        }
-                        
-                        return {
-                            add: update(function(classes, index, value) {
-                                if (!~index) classes.push(value);
-                            }),
-                            
-                            remove: update(function(classes, index) {
-                                if (~index) classes.splice(index, 1);
-                            }),
-                            
-                            toggle: update(function(classes, index, value) {
-                                if (~index) {
-                                    classes.splice(index, 1);
-                                } else {
-                                    classes.push(value);
-                                }
-                            }),
-                            
-                            contains: function(value) {
-                                return !!~self.className.split(/\s+/g).indexOf(value);
-                            },
-                            
-                            item: function(i) {
-                                return self.className.split(/\s+/g)[i] || null;
-                            }
-                        };
-                    }
-                });
-            }
-        }
-    })();
-    </script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    
-    <!-- 兼容性样式 -->
     <style>
-        /* 基础重置 - 兼容性写法 */
+        /* 简化CSS，移除高级特性 */
         * {
             margin: 0;
             padding: 0;
-            -webkit-box-sizing: border-box;
-            -moz-box-sizing: border-box;
             box-sizing: border-box;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 'Microsoft YaHei', sans-serif;
             background: #f5f7fa;
-            background: -webkit-linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             color: #333;
             line-height: 1.6;
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-text-size-adjust: 100%;
-            -ms-text-size-adjust: 100%;
         }
         
-        /* 全屏模式兼容 */
-        .fullscreen-mode {
-            padding: 0 !important;
-            background: white !important;
-        }
-        
-        .fullscreen-mode .container {
-            max-width: 100% !important;
-            height: 100vh !important;
-            border-radius: 0 !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-        }
-        
-        /* 容器 - 兼容性flex */
         .container {
-            max-width: 1200px;
+            max-width: 100%;
             margin: 0 auto;
             background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            position: relative;
-            display: block;
         }
         
-        /* Header - 兼容性渐变 */
         header {
-            background: #ff6b6b;
-            background: -webkit-linear-gradient(left, #ff6b6b, #ff8e53);
-            background: linear-gradient(to right, #ff6b6b, #ff8e53);
+            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
             color: white;
-            padding: 20px 30px;
+            padding: 15px 20px;
             text-align: center;
             position: relative;
             min-height: 100px;
         }
         
         h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
+            font-size: 1.5rem;
+            margin-bottom: 5px;
             font-weight: 700;
             padding: 0 10px;
-            word-wrap: break-word;
-            display: block;
         }
         
-        /* 按钮布局 - 兼容性定位 */
-        .header-left-buttons,
-        .header-right-buttons {
-            position: absolute;
-            top: 15px;
-            z-index: 10;
+        .subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            margin-bottom: 8px;
         }
         
-        .header-left-buttons {
-            left: 15px;
-            text-align: left;
+        .current-date-container {
+            margin-top: 8px;
         }
         
-        .header-right-buttons {
-            right: 15px;
-            text-align: right;
-        }
-        
-        /* 按钮组兼容性flex */
-        .header-left-buttons,
-        .header-right-buttons {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-        }
-        
-        /* 按钮样式 */
-        button {
+        .current-date {
+            font-size: 0.95rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
             display: inline-block;
-            padding: 10px 15px;
+            padding: 6px 12px;
+            border-radius: 30px;
+        }
+        
+        .today-badge {
+            display: none;
+            background: #ff6b6b;
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            margin-left: 5px;
+        }
+        
+        /* 头部按钮布局 */
+        .header-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .header-button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 6px 8px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .controls {
+            display: none;
+            padding: 12px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eaeaea;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .date-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #eaeaea;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .date-selector label {
+            font-weight: 600;
+            color: #555;
+            white-space: nowrap;
+            font-size: 0.85rem;
+        }
+        
+        .date-selector input {
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            min-width: 120px;
+        }
+        
+        .control-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            justify-content: center;
+        }
+        
+        .control-button {
+            padding: 8px 10px;
             background: #4a90e2;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 0.8rem;
             font-weight: 600;
-            text-align: center;
-            text-decoration: none;
-            white-space: nowrap;
-            vertical-align: middle;
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            min-height: 40px;
-            line-height: 1;
-        }
-        
-        /* 移除按钮默认样式（iOS Safari） */
-        button::-moz-focus-inner {
-            border: 0;
-            padding: 0;
-        }
-        
-        /* 触摸反馈 */
-        button:active {
-            -webkit-transform: translateY(2px);
-            transform: translateY(2px);
-        }
-        
-        /* 控制区域 - 兼容性flex */
-        .controls {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -moz-box;
-            display: -ms-flexbox;
             display: flex;
-            -webkit-box-orient: vertical;
-            -webkit-box-direction: normal;
-            -webkit-flex-direction: column;
-            -moz-box-orient: vertical;
-            -moz-box-direction: normal;
-            -ms-flex-direction: column;
-            flex-direction: column;
-            padding: 15px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #eaeaea;
-            display: none;
-        }
-        
-        .control-group {
-            display: -webkit-box;
-            display: -webkit-flex;
-            display: -moz-box;
-            display: -ms-flexbox;
-            display: flex;
-            -webkit-flex-wrap: wrap;
-            -ms-flex-wrap: wrap;
-            flex-wrap: wrap;
-            -webkit-box-pack: center;
-            -webkit-justify-content: center;
-            -moz-box-pack: center;
-            -ms-flex-pack: center;
+            align-items: center;
             justify-content: center;
-            margin-bottom: 10px;
+            gap: 5px;
+            white-space: nowrap;
+            min-height: 36px;
+            flex: 1;
+            min-width: 100px;
+            max-width: 180px;
         }
         
-        /* 菜单容器 - 降级为表格布局 */
+        .export-btn {
+            background: #50c878;
+        }
+        
+        .week-btn {
+            background: #9b59b6;
+        }
+        
+        .print-btn {
+            background: #e67e22;
+        }
+        
+        .settings-btn {
+            background: #95a5a6;
+        }
+        
+        .reset-btn {
+            background: #e74c3c;
+        }
+        
+        .backup-btn {
+            background: #3498db;
+        }
+        
+        .online-btn {
+            background: #1abc9c;
+        }
+        
+        .fullscreen-btn {
+            background: #9c88ff;
+        }
+        
         .menu-container {
-            padding: 20px;
-            display: block;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-height: 500px;
+            overflow-y: auto;
         }
         
         .menu-category {
-            margin-bottom: 20px;
-            display: block;
-            float: left;
-            width: 100%;
-            clear: both;
+            margin-bottom: 10px;
         }
         
         .category-title {
-            font-size: 18px;
+            font-size: 1.1rem;
             color: #ff6b6b;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
+            margin-bottom: 8px;
+            padding-bottom: 4px;
             border-bottom: 2px solid #ff6b6b;
-            display: inline-block;
         }
         
         .menu-item {
             background: white;
-            border-radius: 10px;
-            padding: 12px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            margin-bottom: 8px;
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
             border-left: 4px solid #4a90e2;
-            display: block;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             position: relative;
-            min-height: 50px;
-        }
-        
-        /* 使用表格布局作为fallback */
-        .menu-items-table {
-            display: table;
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 8px;
-        }
-        
-        .menu-item-row {
-            display: table-row;
-        }
-        
-        .menu-item-cell {
-            display: table-cell;
-            vertical-align: middle;
-            padding: 12px;
-            background: white;
-            border-left: 4px solid #4a90e2;
-            border-radius: 0 10px 10px 0;
+            margin-bottom: 5px;
         }
         
         .item-name {
             font-weight: 600;
-            font-size: 16px;
+            font-size: 0.9rem;
             color: #333;
-            display: inline-block;
-            width: 70%;
+            flex: 1;
+            margin-right: 8px;
         }
         
         .item-price {
             font-weight: 700;
             color: #ff6b6b;
-            font-size: 16px;
-            float: right;
+            font-size: 0.9rem;
+            white-space: nowrap;
         }
         
-        /* 清除浮动 */
-        .clearfix:after {
-            content: "";
-            display: table;
-            clear: both;
+        .no-menu {
+            text-align: center;
+            padding: 30px;
+            color: #777;
+            font-size: 1rem;
         }
         
-        /* 模态框兼容性 */
-        .password-modal,
-        .change-password-modal,
-        .edit-item-modal,
-        .forgot-password-modal,
-        .backup-modal,
-        .key-verification-modal,
-        .online-update-modal,
-        .fullscreen-controls-modal,
-        .custom-settings-modal {
+        footer {
+            text-align: center;
+            padding: 10px;
+            color: #777;
+            font-size: 0.8rem;
+            border-top: 1px solid #eaeaea;
+            background: #f8f9fa;
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 15px;
+            background: #50c878;
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: translateX(150%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            max-width: 280px;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.error {
+            background: #ff6b6b;
+        }
+        
+        .modal {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
             z-index: 2000;
             display: none;
             padding: 15px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
         }
         
-        .password-box {
+        .modal-box {
             background: white;
             padding: 20px;
             border-radius: 10px;
             width: 95%;
-            max-width: 400px;
-            margin: 20px auto;
-            position: relative;
-            top: 50%;
-            -webkit-transform: translateY(-50%);
-            transform: translateY(-50%);
+            max-width: 350px;
+            max-height: 80vh;
+            overflow-y: auto;
         }
         
-        /* 输入框兼容性 */
-        input[type="text"],
-        input[type="password"],
-        input[type="number"],
-        input[type="date"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 16px;
-            margin-bottom: 10px;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-        }
-        
-        /* 日期选择器兼容性 */
-        input[type="date"]::-webkit-inner-spin-button,
-        input[type="date"]::-webkit-calendar-picker-indicator {
-            opacity: 1;
-            padding: 0;
-            margin: 0;
-        }
-        
-        /* 动画降级 */
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                -webkit-animation-duration: 0.01ms !important;
-                animation-duration: 0.01ms !important;
-                -webkit-animation-iteration-count: 1 !important;
-                animation-iteration-count: 1 !important;
-                -webkit-transition-duration: 0.01ms !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-        
-        /* 触摸设备优化 */
-        @media (hover: none) and (pointer: coarse) {
-            .menu-item:hover {
-                -webkit-transform: none !important;
-                transform: none !important;
-            }
-            
-            button {
-                min-height: 44px !important;
-                padding: 12px 15px !important;
-            }
-            
-            .edit-item-btn,
-            .edit-password-btn {
-                opacity: 0.7 !important;
-                width: 30px !important;
-                height: 30px !important;
-            }
-        }
-        
-        /* 老旧浏览器回退 */
-        .no-flexbox .control-group {
-            display: block;
+        .modal-title {
+            margin-bottom: 12px;
+            color: #333;
             text-align: center;
+            font-size: 1.1rem;
         }
         
-        .no-flexbox .control-group button {
-            display: inline-block;
-            margin: 5px;
-            width: auto;
-        }
-        
-        .no-cssgrid .menu-container {
-            display: block;
-        }
-        
-        .no-cssgrid .menu-category {
+        .modal-input {
             width: 100%;
-            float: left;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
         }
         
-        /* 打印样式 */
-        @media print {
-            body * {
-                visibility: hidden;
-            }
-            
-            .print-area, .print-area * {
-                visibility: visible;
-            }
-            
-            .no-print {
-                display: none !important;
-            }
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
         
-        /* 响应式设计 - 移动优先 */
+        .modal-button {
+            flex: 1;
+            min-width: 100px;
+        }
+        
+        /* 响应式调整 */
         @media (max-width: 768px) {
             body {
-                padding: 10px;
-                -webkit-text-size-adjust: none;
-                -ms-text-size-adjust: none;
-            }
-            
-            .container {
-                border-radius: 10px;
+                padding: 5px;
             }
             
             header {
-                padding: 15px 10px;
+                padding: 12px 10px;
             }
             
             h1 {
-                font-size: 22px;
-                margin-top: 40px;
-                margin-bottom: 5px;
+                font-size: 1.3rem;
+                margin-top: 5px;
             }
             
-            .header-left-buttons,
-            .header-right-buttons {
-                position: relative;
-                top: auto;
-                left: auto;
-                right: auto;
-                display: block;
-                text-align: center;
-                margin: 10px 0;
+            .header-button {
+                font-size: 0.75rem;
+                padding: 5px 6px;
             }
             
-            .header-left-buttons button,
-            .header-right-buttons button {
-                margin: 5px;
-                padding: 8px 12px;
-                font-size: 12px;
-                display: inline-block;
+            .control-button {
+                min-width: 90px;
+                font-size: 0.75rem;
+                padding: 7px 8px;
+                min-height: 34px;
             }
             
             .menu-container {
+                max-height: 400px;
                 padding: 10px;
-            }
-            
-            .menu-item {
-                padding: 10px;
-            }
-            
-            .item-name {
-                font-size: 14px;
-                width: 65%;
-            }
-            
-            .item-price {
-                font-size: 14px;
-            }
-            
-            button {
-                padding: 10px;
-                font-size: 13px;
-                margin: 3px;
-                min-width: 100px;
-            }
-            
-            .control-group {
-                display: block;
             }
         }
         
         @media (max-width: 480px) {
             h1 {
-                font-size: 20px;
-                padding: 0 5px;
+                font-size: 1.1rem;
             }
             
-            .menu-item {
-                padding: 8px;
+            .control-button {
+                min-width: 100%;
+                margin-bottom: 5px;
             }
             
-            .item-name {
-                width: 60%;
-                font-size: 13px;
+            .control-group {
+                flex-direction: column;
             }
-            
-            .item-price {
-                font-size: 13px;
-            }
-            
-            button {
-                padding: 8px;
-                font-size: 12px;
-                min-width: 90px;
-                margin: 2px;
-                display: block;
-                width: 100%;
-            }
-            
-            .control-group button {
-                display: inline-block;
-                width: calc(50% - 4px);
-                margin: 2px;
-            }
-            
-            .password-box {
-                padding: 15px;
-                margin: 10px auto;
-                width: 98%;
-            }
-        }
-        
-        /* 针对Android 4.x的特殊修复 */
-        .android-fix {
-            -webkit-backface-visibility: hidden;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-        }
-        
-        /* 防止移动端点击延迟 */
-        .no-touch-delay {
-            -webkit-tap-highlight-color: transparent;
-            -webkit-touch-callout: none;
-        }
-        
-        /* 修复iOS Safari的按钮样式 */
-        .ios-button-fix {
-            -webkit-appearance: none;
-            border-radius: 0;
-        }
-        
-        /* 降级动画 - 使用简单的opacity */
-        .fade-in {
-            -webkit-animation: fadeIn 0.3s;
-            animation: fadeIn 0.3s;
-        }
-        
-        @-webkit-keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
         }
     </style>
 </head>
-<body class="android-fix">
-    <!-- 加载指示器 -->
-    <div id="compatibility-loader" style="display:none;">
-        <div style="position:fixed;top:0;left:0;width:100%;height:100%;background:white;z-index:9998;display:flex;justify-content:center;align-items:center;flex-direction:column;">
-            <div style="font-size:18px;margin-bottom:20px;color:#3498db;">正在优化兼容性...</div>
-            <div style="width:200px;height:4px;background:#eee;border-radius:2px;">
-                <div id="loader-progress" style="width:0%;height:100%;background:#3498db;border-radius:2px;transition:width 0.3s;"></div>
-            </div>
-        </div>
-    </div>
-
+<body>
     <div class="container">
-        <!-- Header部分保持原样但优化结构 -->
         <header>
-            <div class="header-left-buttons">
-                <button class="forgot-password no-print" id="forgot-password">
-                    <i class="fas fa-key"></i> 忘记密码？
-                </button>
-            </div>
-            
-            <div class="header-right-buttons">
-                <button class="fullscreen-toggle no-print" id="fullscreen-toggle">
-                    <i class="fas fa-expand"></i> 全屏显示
-                </button>
-                <button class="admin-toggle" id="admin-toggle">
-                    <i class="fas fa-cog"></i> 管理功能
-                </button>
-                <button class="admin-exit" id="admin-exit" style="display:none;">
-                    <i class="fas fa-sign-out-alt"></i> 退出管理
-                </button>
+            <div class="header-buttons">
+                <div>
+                    <button class="header-button" id="forgot-password">
+                        <i class="fas fa-key"></i> 忘记密码
+                    </button>
+                </div>
+                <div>
+                    <button class="header-button" id="fullscreen-toggle">
+                        <i class="fas fa-expand"></i> 全屏
+                    </button>
+                    <button class="header-button" id="admin-toggle">
+                        <i class="fas fa-cog"></i> 管理
+                    </button>
+                    <button class="header-button" id="admin-exit" style="display: none;">
+                        <i class="fas fa-sign-out-alt"></i> 退出
+                    </button>
+                </div>
             </div>
             
             <h1 id="header-title">餐厅菜单公示栏</h1>
             <p class="subtitle" id="header-subtitle">每日精选 · 健康美味</p>
             <div class="current-date-container">
-                <div class="current-date" id="current-date"></div>
-                <div class="today-badge" id="today-badge" style="display:none;">今日</div>
+                <div class="current-date" id="current-date">
+                    <!-- 当前日期将通过JavaScript动态生成 -->
+                </div>
+                <span class="today-badge" id="today-badge">今日</span>
             </div>
         </header>
         
-        <!-- Controls部分保持原样 -->
-        <div class="controls" id="controls" style="display:none;">
-            <!-- ... 原有controls内容 ... -->
+        <div class="controls" id="controls">
+            <div class="date-selector">
+                <label for="menu-date"><i class="fas fa-calendar-alt"></i> 选择日期：</label>
+                <input type="date" id="menu-date">
+            </div>
+            
+            <div class="control-group">
+                <button class="control-button" id="import-btn">
+                    <i class="fas fa-file-import"></i> 导入当日
+                </button>
+                <button class="control-button week-btn" id="import-week-btn">
+                    <i class="fas fa-file-import"></i> 导入整周
+                </button>
+            </div>
+            
+            <div class="control-group">
+                <button class="control-button export-btn" id="export-btn">
+                    <i class="fas fa-file-export"></i> 导出当日
+                </button>
+                <button class="control-button export-btn week-btn" id="export-week-btn">
+                    <i class="fas fa-file-export"></i> 导出整周
+                </button>
+            </div>
+            
+            <div class="control-group">
+                <button class="control-button online-btn" id="today-btn">
+                    <i class="fas fa-calendar-day"></i> 返回今日
+                </button>
+                <button class="control-button print-btn" id="print-btn">
+                    <i class="fas fa-print"></i> 打印菜单
+                </button>
+            </div>
+            
+            <div class="control-group">
+                <button class="control-button backup-btn" id="backup-btn">
+                    <i class="fas fa-database"></i> 备份/恢复
+                </button>
+                <button class="control-button settings-btn" id="change-password-btn">
+                    <i class="fas fa-key"></i> 修改密码
+                </button>
+            </div>
         </div>
         
-        <!-- 菜单容器 - 使用兼容性更好的结构 -->
         <div class="menu-container" id="menu-container">
-            <!-- 使用表格作为fallback -->
-            <div id="menu-table-container"></div>
+            <!-- 菜单内容将通过JavaScript动态生成 -->
         </div>
         
         <footer>
-            <p>餐厅菜单公示栏 &copy; <span id="current-year"></span> | 每日更新，欢迎品尝</p>
-            <p style="margin-top:5px;font-size:12px;color:#aaa;">
-                技术支持：菜单管理系统 v2.8 | 兼容模式
-            </p>
+            <p>餐厅菜单公示栏 &copy; <span id="current-year"></span> | 每日更新</p>
         </footer>
     </div>
 
-    <!-- 所有模态框保持原样 -->
-    <!-- ... 原有模态框代码 ... -->
+    <!-- 模态框统一结构 -->
+    <div class="modal" id="password-modal">
+        <div class="modal-box">
+            <h3 class="modal-title">请输入管理员密码</h3>
+            <input type="password" class="modal-input" id="password-input" placeholder="输入管理员密码">
+            <div class="modal-buttons">
+                <button class="control-button" id="password-cancel">取消</button>
+                <button class="control-button export-btn" id="password-submit">确认</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- 核心JavaScript（兼容性优化版） -->
+    <div class="notification" id="notification">
+        操作成功！
+    </div>
+
     <script>
-    // ==================== 兼容性检测和修复 ====================
-    (function() {
-        // 检测浏览器能力
-        var browserInfo = {
-            isOldAndroid: false,
-            isIOS: false,
-            supportsFlexbox: true,
-            supportsGrid: true,
-            supportsES6: true,
-            supportsFetch: true
-        };
+        // === 使用ES5语法确保兼容性 ===
         
-        // 检测用户代理
-        var ua = navigator.userAgent.toLowerCase();
-        if (ua.indexOf('android') > -1) {
-            // 检测Android版本
-            var androidVersion = ua.match(/android\s([0-9\.]*)/);
-            if (androidVersion && androidVersion[1]) {
-                var version = parseFloat(androidVersion[1]);
-                if (version < 5.0) {
-                    browserInfo.isOldAndroid = true;
-                    console.log('检测到老旧Android浏览器，版本:', version);
-                }
-            }
-        }
+        // 系统常量
+        var SYSTEM_KEY = "XGSQ364532890";
+        var DEFAULT_EXCEL_URL = "https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fjiehag%2Fcp%2Frefs%2Fheads%2Fmain%2Fmenu_data.xlsx&wdOrigin=BROWSELINK";
         
-        // 检测iOS
-        if (ua.indexOf('iphone') > -1 || ua.indexOf('ipad') > -1) {
-            browserInfo.isIOS = true;
-        }
+        // 存储键名
+        var STORAGE_KEY = 'restaurant_menu_data';
+        var ADMIN_PASSWORD_KEY = 'admin_password';
         
-        // 检测Flexbox支持
-        var testFlex = document.createElement('div');
-        testFlex.style.display = 'flex';
-        browserInfo.supportsFlexbox = testFlex.style.display === 'flex' || 
-                                      testFlex.style.display === '-webkit-flex' ||
-                                      testFlex.style.display === '-moz-box' ||
-                                      testFlex.style.display === '-ms-flexbox';
+        // 全局变量
+        var menuData = {};
+        var isAdminMode = false;
+        var currentEditItem = { date: '', category: '', index: -1 };
         
-        // 检测Grid支持
-        var testGrid = document.createElement('div');
-        testGrid.style.display = 'grid';
-        browserInfo.supportsGrid = testGrid.style.display === 'grid' ||
-                                   testGrid.style.display === '-ms-grid';
-        
-        // 检测ES6支持
-        try {
-            eval('let x = 1; const y = 2; () => {}; class Test {}');
-        } catch (e) {
-            browserInfo.supportsES6 = false;
-        }
-        
-        // 检测Fetch支持
-        browserInfo.supportsFetch = 'fetch' in window;
-        
-        // 应用兼容性类
-        if (!browserInfo.supportsFlexbox) {
-            document.body.className += ' no-flexbox';
-        }
-        if (!browserInfo.supportsGrid) {
-            document.body.className += ' no-cssgrid';
-        }
-        if (browserInfo.isOldAndroid) {
-            document.body.className += ' old-android';
-            // 应用Android特定修复
-            applyAndroidFixes();
-        }
-        
-        // 保存浏览器信息到全局
-        window.browserInfo = browserInfo;
-        
-        // Android特定修复
-        function applyAndroidFixes() {
-            // 修复点击延迟
-            document.addEventListener('DOMContentLoaded', function() {
-                // 使用FastClick库或类似方法
-                if (typeof FastClick !== 'undefined') {
-                    FastClick.attach(document.body);
-                }
-            });
-            
-            // 修复输入框焦点问题
-            document.addEventListener('touchstart', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                    e.target.style.fontSize = '16px'; // 防止缩放
-                }
-            }, true);
-            
-            // 修复viewport缩放
-            var viewport = document.querySelector('meta[name="viewport"]');
-            if (viewport) {
-                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
-            }
-        }
-        
-        // 显示兼容性警告（仅开发时）
-        if (browserInfo.isOldAndroid) {
-            console.warn('老旧Android浏览器检测到，已应用兼容性修复');
-        }
-    })();
-    
-    // ==================== 主应用程序（兼容性重写） ====================
-    // 使用var代替const/let，使用function代替箭头函数
-    var SYSTEM_KEY = "XGSQ364532890";
-    var DEFAULT_EXCEL_URL = "https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fraw.githubusercontent.com%2Fjiehag%2Fcp%2Frefs%2Fheads%2Fmain%2Fmenu_data.xlsx&wdOrigin=BROWSELINK";
-    var DEFAULT_GITHUB_RAW_URL = "https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx";
-    
-    // 存储键名
-    var STORAGE_KEY = 'restaurant_menu_data';
-    var SYNC_TIMESTAMP_KEY = 'menu_sync_timestamp';
-    var ADMIN_PASSWORD_KEY = 'admin_password';
-    var EDIT_PASSWORD_KEY = 'edit_password';
-    
-    // 全局变量
-    var menuData = {};
-    var isAdminMode = false;
-    var isFullscreenMode = false;
-    var currentEditItem = { date: '', category: '', index: -1 };
-    
-    // DOM元素引用
-    var menuDateInput, menuContainer, currentDateElement, todayBadge;
-    var importBtn, exportBtn, syncBtn, todayBtn, printBtn, adminToggle, adminExit;
-    var controls, passwordModal, passwordInput, passwordSubmit, passwordCancel;
-    // ... 其他DOM引用
-    
-    // 兼容性AJAX函数（替代fetch）
-    function ajaxRequest(url, options) {
-        return new Promise(function(resolve, reject) {
-            var xhr = new XMLHttpRequest();
-            xhr.open(options.method || 'GET', url, true);
-            
-            // 设置headers
-            if (options.headers) {
-                for (var key in options.headers) {
-                    if (options.headers.hasOwnProperty(key)) {
-                        xhr.setRequestHeader(key, options.headers[key]);
-                    }
-                }
-            }
-            
-            // 设置responseType
-            if (options.responseType) {
-                xhr.responseType = options.responseType;
-            }
-            
-            xhr.onload = function() {
-                if (xhr.status >= 200 && xhr.status < 300) {
-                    resolve({
-                        ok: true,
-                        status: xhr.status,
-                        statusText: xhr.statusText,
-                        url: xhr.responseURL,
-                        arrayBuffer: function() {
-                            return Promise.resolve(xhr.response);
-                        },
-                        json: function() {
-                            try {
-                                return Promise.resolve(JSON.parse(xhr.responseText));
-                            } catch (e) {
-                                return Promise.reject(e);
-                            }
-                        },
-                        text: function() {
-                            return Promise.resolve(xhr.responseText);
-                        },
-                        blob: function() {
-                            return Promise.resolve(new Blob([xhr.response]));
-                        }
-                    });
-                } else {
-                    reject(new Error('HTTP ' + xhr.status + ': ' + xhr.statusText));
-                }
-            };
-            
-            xhr.onerror = function() {
-                reject(new Error('Network error'));
-            };
-            
-            xhr.ontimeout = function() {
-                reject(new Error('Request timeout'));
-            };
-            
-            // 发送数据
-            if (options.body) {
-                xhr.send(options.body);
-            } else {
-                xhr.send();
-            }
-        });
-    }
-    
-    // 兼容性的事件绑定
-    function addEvent(element, event, handler, useCapture) {
-        if (element.addEventListener) {
-            element.addEventListener(event, handler, useCapture || false);
-        } else if (element.attachEvent) {
-            element.attachEvent('on' + event, handler);
-        } else {
-            element['on' + event] = handler;
-        }
-    }
-    
-    // 移除事件
-    function removeEvent(element, event, handler, useCapture) {
-        if (element.removeEventListener) {
-            element.removeEventListener(event, handler, useCapture || false);
-        } else if (element.detachEvent) {
-            element.detachEvent('on' + event, handler);
-        } else {
-            element['on' + event] = null;
-        }
-    }
-    
-    // 兼容性类操作
-    function hasClass(element, className) {
-        if (element.classList) {
-            return element.classList.contains(className);
-        } else {
-            return new RegExp('(^| )' + className + '( |$)', 'gi').test(element.className);
-        }
-    }
-    
-    function addClass(element, className) {
-        if (element.classList) {
-            element.classList.add(className);
-        } else {
-            if (!hasClass(element, className)) {
-                element.className += ' ' + className;
-            }
-        }
-    }
-    
-    function removeClass(element, className) {
-        if (element.classList) {
-            element.classList.remove(className);
-        } else {
-            element.className = element.className.replace(new RegExp('(^|\\b)' + className + '(\\b|$)', 'gi'), ' ');
-        }
-    }
-    
-    // 兼容性forEach
-    function forEachElement(selector, callback) {
-        var elements = document.querySelectorAll(selector);
-        for (var i = 0; i < elements.length; i++) {
-            callback(elements[i], i);
-        }
-    }
-    
-    // 初始化函数
-    function initializeApp() {
-        // 获取DOM元素
-        menuDateInput = document.getElementById('menu-date');
-        menuContainer = document.getElementById('menu-container');
-        currentDateElement = document.getElementById('current-date');
-        todayBadge = document.getElementById('today-badge');
-        
-        // 初始化年份
-        document.getElementById('current-year').textContent = new Date().getFullYear();
-        
-        // 初始化数据
-        initializePasswords();
-        initializeMenuData();
-        
-        // 显示今天菜单
-        var today = new Date();
-        displayMenuForDate(today);
-        
-        // 初始化事件监听器
-        initializeEventListeners();
-        
-        // 初始化日期选择器
-        if (menuDateInput) {
-            menuDateInput.value = getTodayDateString();
-        }
-        
-        // 隐藏加载器
-        setTimeout(function() {
-            var loader = document.getElementById('compatibility-loader');
-            if (loader) loader.style.display = 'none';
-        }, 500);
-        
-        // 显示欢迎信息
-        setTimeout(function() {
-            showNotification('餐厅菜单系统已就绪（兼容模式）', false, 'info');
-        }, 1000);
-    }
-    
-    // 密码初始化
-    function initializePasswords() {
-        var savedAdminPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
-        var savedEditPassword = localStorage.getItem(EDIT_PASSWORD_KEY);
-        
-        if (!savedAdminPassword) {
-            savedAdminPassword = "admin123";
-            localStorage.setItem(ADMIN_PASSWORD_KEY, savedAdminPassword);
-        }
-        
-        if (!savedEditPassword) {
-            savedEditPassword = "edit123";
-            localStorage.setItem(EDIT_PASSWORD_KEY, savedEditPassword);
-        }
-    }
-    
-    // 菜单数据初始化
-    function initializeMenuData() {
-        var savedData = localStorage.getItem(STORAGE_KEY);
-        
-        if (savedData) {
-            try {
-                menuData = JSON.parse(savedData);
-                console.log('菜单数据加载成功');
-            } catch (e) {
-                console.error('解析菜单数据失败:', e);
-                menuData = createSampleData();
-                saveMenuData();
-            }
-        } else {
-            menuData = createSampleData();
-            saveMenuData();
-        }
-    }
-    
-    // 创建示例数据
-    function createSampleData() {
-        var today = new Date();
-        var todayStr = getDateString(today);
-        
-        var data = {};
-        data[todayStr] = {
-            "主菜": [
-                { name: "红烧肉", price: 12 },
-                { name: "清蒸鱼", price: 15 }
-            ],
-            "素菜": [
-                { name: "蒜蓉西兰花", price: 8 }
-            ],
-            "主食与汤品": [
-                { name: "米饭+例汤", price: 2 }
-            ]
-        };
-        
-        return data;
-    }
-    
-    // 日期辅助函数
-    function getDateString(date) {
-        var year = date.getFullYear();
-        var month = ('0' + (date.getMonth() + 1)).slice(-2);
-        var day = ('0' + date.getDate()).slice(-2);
-        return year + '-' + month + '-' + day;
-    }
-    
-    function getTodayDateString() {
-        return getDateString(new Date());
-    }
-    
-    function formatDateDisplay(dateString) {
-        var date = new Date(dateString);
-        var options = { 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric',
-            weekday: 'long'
-        };
-        
-        // 兼容性日期格式化
-        var weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
-        var months = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一月', '十二月'];
-        
-        return date.getFullYear() + '年 ' + 
-               months[date.getMonth()] + ' ' + 
-               date.getDate() + '日 ' + 
-               weekdays[date.getDay()];
-    }
-    
-    // 显示菜单
-    function displayMenuForDate(date) {
-        var dateStr = getDateString(date);
-        
-        // 更新日期显示
-        if (currentDateElement) {
-            currentDateElement.innerHTML = '<i class="fas fa-calendar-alt"></i> ' + formatDateDisplay(dateStr);
-        }
-        
-        // 更新日期输入
-        if (menuDateInput) {
-            menuDateInput.value = dateStr;
-        }
-        
-        // 检查是否为今天
-        var todayStr = getTodayDateString();
-        if (todayBadge) {
-            if (dateStr === todayStr) {
-                todayBadge.style.display = 'block';
-                addClass(currentDateElement, 'today-highlight');
-            } else {
-                todayBadge.style.display = 'none';
-                removeClass(currentDateElement, 'today-highlight');
-            }
-        }
-        
-        // 渲染菜单
-        renderMenuForDate(dateStr);
-    }
-    
-    // 渲染菜单（兼容性版本）
-    function renderMenuForDate(dateStr) {
-        var menu = menuData[dateStr];
-        var container = document.getElementById('menu-table-container');
-        
-        if (!container) {
-            container = document.createElement('div');
-            container.id = 'menu-table-container';
-            menuContainer.innerHTML = '';
-            menuContainer.appendChild(container);
-        }
-        
-        if (!menu || Object.keys(menu).length === 0) {
-            container.innerHTML = '<div class="no-menu">该日期暂无菜单数据</div>';
-            return;
-        }
-        
-        var html = '';
-        
-        // 遍历分类
-        for (var category in menu) {
-            if (menu.hasOwnProperty(category)) {
-                var validCategory = category && category !== 'undefined' ? category : '菜单';
-                var items = menu[category];
-                
-                html += '<div class="menu-category">';
-                html += '<h2 class="category-title">' + validCategory + '</h2>';
-                html += '<div class="menu-items-table">';
-                
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    
-                    html += '<div class="menu-item-row">';
-                    html += '<div class="menu-item-cell">';
-                    html += '<button class="edit-password-btn no-print" style="position:absolute;left:5px;top:5px;" ' +
-                           'data-date="' + dateStr + '" data-category="' + category + '" data-index="' + i + '">' +
-                           '<i class="fas fa-key"></i></button>';
-                    html += '<span class="item-name">' + item.name + '</span>';
-                    html += '<span class="item-price">' + item.price + '元</span>';
-                    html += '<button class="edit-item-btn no-print" style="position:absolute;right:5px;top:5px;" ' +
-                           'data-date="' + dateStr + '" data-category="' + category + '" data-index="' + i + '">' +
-                           '<i class="fas fa-edit"></i></button>';
-                    html += '</div></div>';
-                }
-                
-                html += '</div></div>';
-            }
-        }
-        
-        container.innerHTML = html;
-        
-        // 绑定编辑按钮事件
-        forEachElement('.edit-item-btn', function(btn) {
-            addEvent(btn, 'click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                var date = this.getAttribute('data-date');
-                var category = this.getAttribute('data-category');
-                var index = parseInt(this.getAttribute('data-index'), 10);
-                
-                if (!isAdminMode) {
-                    openPasswordModal();
-                    return;
-                }
-                
-                openEditPasswordModal(date, category, index);
-            });
-        });
-        
-        // 绑定密码按钮事件
-        forEachElement('.edit-password-btn', function(btn) {
-            addEvent(btn, 'click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                
-                if (!isAdminMode) {
-                    openPasswordModal();
-                    return;
-                }
-                
-                openChangeEditPasswordModal();
-            });
-        });
-    }
-    
-    // 显示通知
-    function showNotification(message, isError, type) {
-        var notification = document.getElementById('notification');
-        if (!notification) {
-            notification = document.createElement('div');
-            notification.id = 'notification';
-            notification.className = 'notification';
-            document.body.appendChild(notification);
-        }
-        
-        notification.textContent = message;
-        notification.className = 'notification';
-        
-        if (type === 'error' || isError) {
-            addClass(notification, 'error');
-        } else if (type === 'warning') {
-            addClass(notification, 'warning');
-        } else if (type === 'info') {
-            addClass(notification, 'info');
-        }
-        
-        addClass(notification, 'show');
-        
-        setTimeout(function() {
-            removeClass(notification, 'show');
-        }, 3000);
-    }
-    
-    // 保存菜单数据
-    function saveMenuData() {
-        try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(menuData));
-            localStorage.setItem(SYNC_TIMESTAMP_KEY, Date.now().toString());
-            
-            // 显示同步状态
-            var syncStatus = document.getElementById('sync-status');
-            if (syncStatus) {
-                syncStatus.innerHTML = '<i class="fas fa-cloud"></i> 数据已保存: ' + new Date().toLocaleTimeString();
-                removeClass(syncStatus, 'hidden');
-                
-                setTimeout(function() {
-                    addClass(syncStatus, 'hidden');
-                }, 2000);
-            }
-            
-            return true;
-        } catch (e) {
-            console.error('保存数据失败:', e);
-            showNotification('保存数据失败', true);
-            return false;
-        }
-    }
-    
-    // 管理员模式功能
-    function openPasswordModal() {
-        var modal = document.getElementById('password-modal');
-        if (modal) {
-            modal.style.display = 'block';
-            var input = document.getElementById('password-input');
-            if (input) {
-                input.value = '';
-                input.focus();
-            }
-        }
-    }
-    
-    function closePasswordModal() {
-        var modal = document.getElementById('password-modal');
-        if (modal) {
-            modal.style.display = 'none';
-        }
-    }
-    
-    function verifyPassword() {
-        var input = document.getElementById('password-input');
-        if (!input) return;
-        
-        var savedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY) || "admin123";
-        
-        if (input.value === savedPassword) {
-            isAdminMode = true;
-            
-            // 显示控制面板
-            var controls = document.getElementById('controls');
-            if (controls) {
-                controls.style.display = 'block';
-            }
-            
-            // 切换按钮显示
-            var adminToggle = document.getElementById('admin-toggle');
-            var adminExit = document.getElementById('admin-exit');
-            if (adminToggle) adminToggle.style.display = 'none';
-            if (adminExit) adminExit.style.display = 'inline-block';
-            
-            closePasswordModal();
-            showNotification('管理员模式已启用');
-        } else {
-            showNotification('密码错误，请重试', true);
-            input.value = '';
-            input.focus();
-        }
-    }
-    
-    function exitAdminMode() {
-        isAdminMode = false;
-        
+        // DOM元素引用
+        var menuDateInput = document.getElementById('menu-date');
+        var menuContainer = document.getElementById('menu-container');
+        var currentDateElement = document.getElementById('current-date');
+        var todayBadge = document.getElementById('today-badge');
         var controls = document.getElementById('controls');
-        if (controls) {
-            controls.style.display = 'none';
-        }
-        
         var adminToggle = document.getElementById('admin-toggle');
         var adminExit = document.getElementById('admin-exit');
-        if (adminToggle) adminToggle.style.display = 'inline-block';
-        if (adminExit) adminExit.style.display = 'none';
+        var notification = document.getElementById('notification');
         
-        showNotification('已退出管理员模式');
-    }
-    
-    // 事件监听器初始化
-    function initializeEventListeners() {
-        // 管理员按钮
-        var adminToggleBtn = document.getElementById('admin-toggle');
-        if (adminToggleBtn) {
-            addEvent(adminToggleBtn, 'click', openPasswordModal);
-        }
-        
-        var adminExitBtn = document.getElementById('admin-exit');
-        if (adminExitBtn) {
-            addEvent(adminExitBtn, 'click', exitAdminMode);
-        }
-        
-        // 日期选择器
-        if (menuDateInput) {
-            addEvent(menuDateInput, 'change', function() {
-                var selectedDate = new Date(this.value);
-                displayMenuForDate(selectedDate);
-            });
-        }
-        
-        // 今天按钮
-        var todayBtn = document.getElementById('today-btn');
-        if (todayBtn) {
-            addEvent(todayBtn, 'click', function() {
-                var today = new Date();
-                displayMenuForDate(today);
-                showNotification('已返回今日菜单');
-            });
-        }
-        
-        // 打印按钮
-        var printBtn = document.getElementById('print-btn');
-        if (printBtn) {
-            addEvent(printBtn, 'click', function() {
-                if (!isAdminMode) {
-                    openPasswordModal();
-                    return;
-                }
-                printMenu();
-            });
-        }
-        
-        // 密码验证
-        var passwordSubmitBtn = document.getElementById('password-submit');
-        if (passwordSubmitBtn) {
-            addEvent(passwordSubmitBtn, 'click', verifyPassword);
-        }
-        
-        var passwordCancelBtn = document.getElementById('password-cancel');
-        if (passwordCancelBtn) {
-            addEvent(passwordCancelBtn, 'click', closePasswordModal);
-        }
-        
-        // 键盘事件
-        addEvent(document, 'keydown', function(event) {
-            if (event.key === 'Escape') {
-                closePasswordModal();
-                exitAdminMode();
-            }
-        });
-        
-        // 点击外部关闭模态框
-        addEvent(window, 'click', function(event) {
-            var modal = document.getElementById('password-modal');
-            if (modal && event.target === modal) {
-                closePasswordModal();
-            }
-        });
-        
-        // 导入/导出等其他功能的事件绑定...
-        // 由于篇幅限制，这里只列出关键事件，其他事件按相同模式添加
-    }
-    
-    // 打印功能
-    function printMenu() {
-        var dateStr = menuDateInput ? menuDateInput.value : getTodayDateString();
-        var menu = menuData[dateStr];
-        
-        if (!menu) {
-            showNotification('该日期没有菜单数据', true);
-            return;
-        }
-
-        var printContent = document.createElement('div');
-        printContent.className = 'print-area';
-        
-        var title = document.createElement('h1');
-        title.textContent = '餐厅菜单 - ' + formatDateDisplay(dateStr);
-        title.style.textAlign = 'center';
-        title.style.marginBottom = '20px';
-        title.style.color = '#333';
-        printContent.appendChild(title);
-        
-        for (var category in menu) {
-            if (menu.hasOwnProperty(category)) {
-                var categoryDiv = document.createElement('div');
-                categoryDiv.className = 'menu-category';
-                
-                var categoryTitle = document.createElement('h2');
-                categoryTitle.className = 'category-title';
-                var validCategory = category && category !== 'undefined' ? category : '菜单';
-                categoryTitle.textContent = validCategory;
-                categoryDiv.appendChild(categoryTitle);
-                
-                var itemsDiv = document.createElement('div');
-                itemsDiv.className = 'category-items';
-                
-                var items = menu[category];
-                for (var i = 0; i < items.length; i++) {
-                    var item = items[i];
-                    var itemDiv = document.createElement('div');
-                    itemDiv.className = 'menu-item';
-                    itemDiv.style.display = 'flex';
-                    itemDiv.style.justifyContent = 'space-between';
-                    itemDiv.style.padding = '10px';
-                    itemDiv.style.marginBottom = '5px';
-                    itemDiv.style.border = '1px solid #ddd';
-                    itemDiv.style.borderRadius = '5px';
-                    
-                    var nameSpan = document.createElement('span');
-                    nameSpan.className = 'item-name';
-                    nameSpan.textContent = item.name;
-                    
-                    var priceSpan = document.createElement('span');
-                    priceSpan.className = 'item-price';
-                    priceSpan.textContent = item.price + '元';
-                    
-                    itemDiv.appendChild(nameSpan);
-                    itemDiv.appendChild(priceSpan);
-                    itemsDiv.appendChild(itemDiv);
-                }
-                
-                categoryDiv.appendChild(itemsDiv);
-                printContent.appendChild(categoryDiv);
-            }
-        }
-        
-        var footer = document.createElement('div');
-        footer.style.textAlign = 'center';
-        footer.style.marginTop = '30px';
-        footer.style.paddingTop = '20px';
-        footer.style.borderTop = '1px solid #ddd';
-        footer.style.color = '#777';
-        footer.textContent = '餐厅菜单公示栏 - 打印时间: ' + new Date().toLocaleString();
-        printContent.appendChild(footer);
-        
-        document.body.appendChild(printContent);
-        window.print();
-        
-        setTimeout(function() {
-            if (printContent.parentNode) {
-                printContent.parentNode.removeChild(printContent);
-            }
-        }, 100);
-        
-        showNotification('打印任务已发送');
-    }
-    
-    // 其他原有功能（Excel导入导出、在线更新、全屏等）
-    // 需要按相同模式重写为兼容性版本
-    
-    // 页面加载完成后初始化
-    addEvent(document, 'DOMContentLoaded', function() {
-        // 显示兼容性加载器
-        var loader = document.getElementById('compatibility-loader');
-        if (loader) {
-            loader.style.display = 'block';
-            var progress = document.getElementById('loader-progress');
-            if (progress) {
-                progress.style.width = '30%';
-                setTimeout(function() {
-                    progress.style.width = '70%';
-                    setTimeout(function() {
-                        progress.style.width = '100%';
-                    }, 300);
-                }, 300);
-            }
-        }
-        
-        // 延迟初始化，确保polyfill加载完成
-        setTimeout(function() {
-            try {
-                initializeApp();
-            } catch (error) {
-                console.error('初始化失败:', error);
-                showNotification('系统初始化失败，请刷新页面重试', true);
-                
-                // 尝试降级到更简单的模式
-                setTimeout(function() {
-                    try {
-                        fallbackToBasicMode();
-                    } catch (e) {
-                        console.error('降级模式也失败:', e);
-                    }
-                }, 1000);
-            }
-        }, 1000);
-    });
-    
-    // 降级到基本模式
-    function fallbackToBasicMode() {
-        console.log('正在降级到基本模式...');
-        
-        // 简化界面
-        var container = document.querySelector('.container');
-        if (container) {
-            container.innerHTML = '<div style="padding:20px;text-align:center;">' +
-                                 '<h1>餐厅菜单公示栏（基本模式）</h1>' +
-                                 '<div id="basic-menu"></div>' +
-                                 '<p style="color:#666;margin-top:20px;">高级功能暂不可用，请使用现代浏览器访问完整功能</p>' +
-                                 '</div>';
+        // 基本工具函数
+        function getTodayDateString() {
+            var today = new Date();
+            var year = today.getFullYear();
+            var month = today.getMonth() + 1;
+            var day = today.getDate();
             
-            // 加载并显示基本菜单
+            month = month < 10 ? '0' + month : month;
+            day = day < 10 ? '0' + day : day;
+            
+            return year + '-' + month + '-' + day;
+        }
+        
+        function formatDateDisplay(dateString) {
+            var date = new Date(dateString);
+            var weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+            var weekday = weekdays[date.getDay()];
+            return dateString + ' ' + weekday;
+        }
+        
+        function showNotification(message, isError) {
+            notification.textContent = message;
+            notification.className = 'notification';
+            
+            if (isError) {
+                notification.classList.add('error');
+            } else {
+                notification.classList.remove('error');
+            }
+            
+            notification.classList.add('show');
+            setTimeout(function() {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+        
+        // 密码管理
+        function getAdminPassword() {
+            var savedPassword = localStorage.getItem(ADMIN_PASSWORD_KEY);
+            return savedPassword || "admin123";
+        }
+        
+        function updateAdminPassword(newPassword) {
+            localStorage.setItem(ADMIN_PASSWORD_KEY, newPassword);
+            showNotification('密码已更新');
+        }
+        
+        // 数据管理
+        function saveMenuData() {
             try {
-                var savedData = localStorage.getItem(STORAGE_KEY);
-                if (savedData) {
-                    var menu = JSON.parse(savedData);
-                    var today = getTodayDateString();
-                    var todayMenu = menu[today];
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(menuData));
+                return true;
+            } catch (e) {
+                showNotification('保存失败', true);
+                return false;
+            }
+        }
+        
+        function loadMenuData() {
+            var savedData = localStorage.getItem(STORAGE_KEY);
+            if (savedData) {
+                try {
+                    menuData = JSON.parse(savedData);
+                } catch (e) {
+                    menuData = createSampleData();
+                }
+            } else {
+                menuData = createSampleData();
+            }
+        }
+        
+        function createSampleData() {
+            var today = getTodayDateString();
+            return {
+                [today]: {
+                    "主菜": [
+                        { name: "红烧肉", price: 12 },
+                        { name: "清蒸鱼", price: 15 },
+                        { name: "青椒炒猪肝", price: 10 }
+                    ],
+                    "素菜": [
+                        { name: "芹菜炒豆干", price: 4 },
+                        { name: "麻婆豆腐", price: 5 }
+                    ]
+                }
+            };
+        }
+        
+        // 菜单显示
+        function displayMenuForDate(dateString) {
+            menuDateInput.value = dateString;
+            currentDateElement.innerHTML = formatDateDisplay(dateString);
+            
+            // 显示今日标记
+            if (dateString === getTodayDateString()) {
+                todayBadge.style.display = 'inline-block';
+                currentDateElement.style.color = '#ff6b6b';
+            } else {
+                todayBadge.style.display = 'none';
+                currentDateElement.style.color = 'white';
+            }
+            
+            renderMenu(dateString);
+        }
+        
+        function renderMenu(dateString) {
+            var menu = menuData[dateString];
+            var html = '';
+            
+            if (menu) {
+                for (var category in menu) {
+                    if (menu.hasOwnProperty(category)) {
+                        html += '<div class="menu-category">';
+                        html += '<h2 class="category-title">' + category + '</h2>';
+                        html += '<div class="category-items">';
+                        
+                        for (var i = 0; i < menu[category].length; i++) {
+                            var item = menu[category][i];
+                            html += '<div class="menu-item">';
+                            html += '<span class="item-name">' + item.name + '</span>';
+                            html += '<span class="item-price">' + item.price + '元</span>';
+                            
+                            if (isAdminMode) {
+                                html += '<button class="edit-item-btn" onclick="editItem(\'' + dateString + '\', \'' + category + '\', ' + i + ')">';
+                                html += '<i class="fas fa-edit"></i>';
+                                html += '</button>';
+                            }
+                            
+                            html += '</div>';
+                        }
+                        
+                        html += '</div></div>';
+                    }
+                }
+            } else {
+                html = '<div class="no-menu">该日期暂无菜单数据</div>';
+            }
+            
+            menuContainer.innerHTML = html;
+        }
+        
+        // 管理员功能
+        function enterAdminMode() {
+            isAdminMode = true;
+            controls.style.display = 'flex';
+            adminToggle.style.display = 'none';
+            adminExit.style.display = 'inline-block';
+            showNotification('管理员模式已启用');
+            displayMenuForDate(menuDateInput.value);
+        }
+        
+        function exitAdminMode() {
+            isAdminMode = false;
+            controls.style.display = 'none';
+            adminToggle.style.display = 'inline-block';
+            adminExit.style.display = 'none';
+            showNotification('已退出管理员模式');
+            displayMenuForDate(menuDateInput.value);
+        }
+        
+        // 模态框控制
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'flex';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // 事件处理函数
+        function editItem(date, category, index) {
+            var newName = prompt('请输入新的菜品名称:', menuData[date][category][index].name);
+            if (newName === null) return;
+            
+            var newPrice = prompt('请输入新的价格:', menuData[date][category][index].price);
+            if (newPrice === null) return;
+            
+            newPrice = parseFloat(newPrice);
+            if (isNaN(newPrice)) {
+                showNotification('价格格式错误', true);
+                return;
+            }
+            
+            menuData[date][category][index] = {
+                name: newName,
+                price: newPrice
+            };
+            
+            if (saveMenuData()) {
+                renderMenu(date);
+                showNotification('菜品修改成功');
+            }
+        }
+        
+        function importExcel(file, isWeekly) {
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    var data = new Uint8Array(e.target.result);
+                    var workbook = XLSX.read(data, { type: 'array' });
+                    var dateStr = menuDateInput.value;
                     
-                    var html = '<h3>' + formatDateDisplay(today) + '</h3>';
-                    if (todayMenu) {
-                        for (var category in todayMenu) {
-                            if (todayMenu.hasOwnProperty(category)) {
-                                html += '<h4>' + category + '</h4><ul>';
-                                var items = todayMenu[category];
-                                for (var i = 0; i < items.length; i++) {
-                                    html += '<li>' + items[i].name + ' - ' + items[i].price + '元</li>';
+                    if (isWeekly) {
+                        // 整周导入简化处理
+                        showNotification('整周导入功能正在开发中', true);
+                    } else {
+                        var worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                        var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        var menuItems = {};
+                        for (var i = 1; i < jsonData.length; i++) {
+                            var row = jsonData[i];
+                            if (row && row.length >= 3) {
+                                var category = row[0] || '菜单';
+                                var name = row[1];
+                                var price = row[2];
+                                
+                                if (name && price !== undefined) {
+                                    if (!menuItems[category]) {
+                                        menuItems[category] = [];
+                                    }
+                                    
+                                    menuItems[category].push({
+                                        name: String(name).trim(),
+                                        price: Number(price) || 0
+                                    });
                                 }
-                                html += '</ul>';
                             }
                         }
-                    } else {
-                        html += '<p>今日暂无菜单数据</p>';
+                        
+                        menuData[dateStr] = menuItems;
+                        
+                        if (saveMenuData()) {
+                            renderMenu(dateStr);
+                            showNotification('菜单导入成功');
+                        }
                     }
-                    
-                    document.getElementById('basic-menu').innerHTML = html;
+                } catch (error) {
+                    console.error('导入错误:', error);
+                    showNotification('导入失败，请检查文件格式', true);
                 }
-            } catch (e) {
-                console.error('基本模式加载失败:', e);
+            };
+            
+            reader.readAsArrayBuffer(file);
+        }
+        
+        function exportExcel() {
+            var dateStr = menuDateInput.value;
+            var menu = menuData[dateStr];
+            
+            if (!menu) {
+                showNotification('该日期没有菜单数据', true);
+                return;
+            }
+            
+            try {
+                var wb = XLSX.utils.book_new();
+                var data = [['类别', '菜品名称', '价格(元)']];
+                
+                for (var category in menu) {
+                    if (menu.hasOwnProperty(category)) {
+                        for (var i = 0; i < menu[category].length; i++) {
+                            var item = menu[category][i];
+                            data.push([category, item.name, item.price]);
+                        }
+                    }
+                }
+                
+                var ws = XLSX.utils.aoa_to_sheet(data);
+                XLSX.utils.book_append_sheet(wb, ws, '菜单');
+                XLSX.writeFile(wb, '菜单_' + dateStr + '.xlsx');
+                
+                showNotification('导出成功');
+            } catch (error) {
+                showNotification('导出失败', true);
             }
         }
         
-        showNotification('已切换到基本兼容模式', false, 'info');
-    }
-    
-    // 其他原有函数需要按相同模式重写...
-    // 这里只列出了核心功能的重写，其他功能如Excel处理、全屏等需要类似处理
+        // 初始化函数
+        function initialize() {
+            // 设置当前年份
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            
+            // 加载数据
+            loadMenuData();
+            
+            // 显示今日菜单
+            displayMenuForDate(getTodayDateString());
+            
+            // 初始化密码
+            if (!localStorage.getItem(ADMIN_PASSWORD_KEY)) {
+                localStorage.setItem(ADMIN_PASSWORD_KEY, "admin123");
+            }
+            
+            // 设置事件监听器
+            setupEventListeners();
+            
+            // 显示欢迎信息
+            setTimeout(function() {
+                showNotification('欢迎使用餐厅菜单管理系统');
+            }, 1000);
+        }
+        
+        function setupEventListeners() {
+            // 日期选择
+            menuDateInput.addEventListener('change', function() {
+                displayMenuForDate(this.value);
+            });
+            
+            // 管理员登录
+            document.getElementById('admin-toggle').onclick = function() {
+                openModal('password-modal');
+                document.getElementById('password-input').focus();
+            };
+            
+            // 退出管理员
+            document.getElementById('admin-exit').onclick = exitAdminMode;
+            
+            // 密码验证
+            document.getElementById('password-submit').onclick = function() {
+                var input = document.getElementById('password-input');
+                if (input.value === getAdminPassword()) {
+                    closeModal('password-modal');
+                    enterAdminMode();
+                } else {
+                    showNotification('密码错误', true);
+                    input.value = '';
+                    input.focus();
+                }
+            };
+            
+            document.getElementById('password-cancel').onclick = function() {
+                closeModal('password-modal');
+            };
+            
+            // 导入功能
+            document.getElementById('import-btn').onclick = function() {
+                if (!isAdminMode) {
+                    openModal('password-modal');
+                    return;
+                }
+                
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.xlsx, .xls';
+                input.onchange = function(e) {
+                    if (e.target.files.length > 0) {
+                        importExcel(e.target.files[0], false);
+                    }
+                };
+                input.click();
+            };
+            
+            document.getElementById('import-week-btn').onclick = function() {
+                if (!isAdminMode) {
+                    openModal('password-modal');
+                    return;
+                }
+                
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.xlsx, .xls';
+                input.onchange = function(e) {
+                    if (e.target.files.length > 0) {
+                        importExcel(e.target.files[0], true);
+                    }
+                };
+                input.click();
+            };
+            
+            // 导出功能
+            document.getElementById('export-btn').onclick = function() {
+                if (!isAdminMode) {
+                    openModal('password-modal');
+                    return;
+                }
+                exportExcel();
+            };
+            
+            // 返回今日
+            document.getElementById('today-btn').onclick = function() {
+                displayMenuForDate(getTodayDateString());
+            };
+            
+            // 打印
+            document.getElementById('print-btn').onclick = function() {
+                window.print();
+            };
+            
+            // 修改密码
+            document.getElementById('change-password-btn').onclick = function() {
+                if (!isAdminMode) {
+                    openModal('password-modal');
+                    return;
+                }
+                
+                var oldPass = prompt('请输入原密码:');
+                if (oldPass === null) return;
+                
+                if (oldPass !== getAdminPassword()) {
+                    showNotification('原密码错误', true);
+                    return;
+                }
+                
+                var newPass = prompt('请输入新密码(至少4位):');
+                if (newPass === null) return;
+                
+                if (newPass.length < 4) {
+                    showNotification('密码至少需要4位', true);
+                    return;
+                }
+                
+                updateAdminPassword(newPass);
+            };
+            
+            // 忘记密码
+            document.getElementById('forgot-password').onclick = function() {
+                var key = prompt('请输入系统密钥重置密码:');
+                if (key === null) return;
+                
+                if (key.trim().toUpperCase() === SYSTEM_KEY) {
+                    updateAdminPassword('admin123');
+                    showNotification('密码已重置为默认值: admin123');
+                } else {
+                    showNotification('密钥错误', true);
+                }
+            };
+            
+            // 全屏功能简化版
+            document.getElementById('fullscreen-toggle').onclick = function() {
+                var elem = document.documentElement;
+                
+                if (!document.fullscreenElement) {
+                    if (elem.requestFullscreen) {
+                        elem.requestFullscreen();
+                    } else if (elem.mozRequestFullScreen) {
+                        elem.mozRequestFullScreen();
+                    } else if (elem.webkitRequestFullscreen) {
+                        elem.webkitRequestFullscreen();
+                    }
+                } else {
+                    if (document.exitFullscreen) {
+                        document.exitFullscreen();
+                    } else if (document.mozCancelFullScreen) {
+                        document.mozCancelFullScreen();
+                    } else if (document.webkitExitFullscreen) {
+                        document.webkitExitFullscreen();
+                    }
+                }
+            };
+            
+            // 备份/恢复功能简化版
+            document.getElementById('backup-btn').onclick = function() {
+                if (!isAdminMode) {
+                    openModal('password-modal');
+                    return;
+                }
+                
+                var choice = confirm('请选择操作:\n确定 - 备份数据\n取消 - 恢复数据');
+                
+                if (choice) {
+                    // 备份
+                    var backupData = {
+                        menuData: menuData,
+                        adminPassword: getAdminPassword(),
+                        timestamp: new Date().toISOString()
+                    };
+                    
+                    var dataStr = JSON.stringify(backupData);
+                    var blob = new Blob([dataStr], { type: 'application/json' });
+                    var url = URL.createObjectURL(blob);
+                    
+                    var link = document.createElement('a');
+                    link.href = url;
+                    link.download = '菜单备份_' + getTodayDateString() + '.json';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    URL.revokeObjectURL(url);
+                    showNotification('备份成功');
+                } else {
+                    // 恢复
+                    var input = document.createElement('input');
+                    input.type = 'file';
+                    input.accept = '.json';
+                    input.onchange = function(e) {
+                        if (e.target.files.length > 0) {
+                            var file = e.target.files[0];
+                            var reader = new FileReader();
+                            
+                            reader.onload = function(e) {
+                                try {
+                                    var backup = JSON.parse(e.target.result);
+                                    if (confirm('确定要恢复备份数据吗？这将覆盖现有数据。')) {
+                                        menuData = backup.menuData || {};
+                                        if (backup.adminPassword) {
+                                            updateAdminPassword(backup.adminPassword);
+                                        }
+                                        saveMenuData();
+                                        displayMenuForDate(getTodayDateString());
+                                        showNotification('数据恢复成功');
+                                    }
+                                } catch (error) {
+                                    showNotification('恢复失败，文件格式错误', true);
+                                }
+                            };
+                            
+                            reader.readAsText(file);
+                        }
+                    };
+                    input.click();
+                }
+            };
+            
+            // 回车键提交密码
+            document.getElementById('password-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('password-submit').click();
+                }
+            });
+            
+            // ESC键关闭模态框
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    var modals = document.querySelectorAll('.modal');
+                    for (var i = 0; i < modals.length; i++) {
+                        modals[i].style.display = 'none';
+                    }
+                }
+            });
+            
+            // 点击模态框外部关闭
+            window.addEventListener('click', function(event) {
+                var modals = document.querySelectorAll('.modal');
+                for (var i = 0; i < modals.length; i++) {
+                    if (event.target === modals[i]) {
+                        modals[i].style.display = 'none';
+                    }
+                }
+            });
+        }
+        
+        // 页面加载完成后初始化
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
+        }
     </script>
 </body>
 </html>
