@@ -18,7 +18,7 @@
         
         body {
             font-family: Arial, sans-serif;
-            padding: 5px; /* 减少整体内边距 */
+            padding: 5px;
             -webkit-tap-highlight-color: transparent;
             min-width: 800px;
             display: flex;
@@ -48,7 +48,7 @@
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             overflow: hidden;
-            margin-bottom: 10px; /* 减少底部外边距 */
+            margin-bottom: 10px;
             flex: 1;
         }
         
@@ -56,49 +56,49 @@
         .header {
             background: #ff6b6b;
             color: white;
-            padding: 8px 15px; /* 减少垂直内边距 */
+            padding: 8px 15px;
             text-align: center;
         }
         
         .title {
-            font-size: 1.2rem; /* 减小标题字体 */
-            margin: 0 0 3px 0; /* 减少底部边距 */
+            font-size: 1.2rem;
+            margin: 0 0 3px 0;
         }
         
         .date-display {
-            font-size: 0.8rem; /* 减小日期字体 */
-            margin: 5px 0; /* 减少边距 */
+            font-size: 0.8rem;
+            margin: 5px 0;
             background: rgba(255,255,255,0.2);
-            padding: 3px 8px; /* 减少内边距 */
+            padding: 3px 8px;
             border-radius: 12px;
             display: inline-block;
         }
         
         .buttons {
-            padding: 6px 10px; /* 减少按钮区域内边距 */
+            padding: 6px 10px;
             background: #f8f8f8;
             border-bottom: 1px solid #ddd;
             text-align: center;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 3px; /* 减少按钮间距 */
+            gap: 3px;
         }
         
         .btn {
             background: #4a90e2;
             color: white;
             border: none;
-            padding: 5px 8px; /* 减小按钮内边距 */
+            padding: 5px 8px;
             border-radius: 3px;
             cursor: pointer;
-            font-size: 0.8rem; /* 减小按钮字体 */
+            font-size: 0.8rem;
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            min-width: 80px; /* 减小最小宽度 */
-            height: 28px; /* 固定按钮高度 */
-            line-height: 1; /* 确保文字垂直居中 */
+            min-width: 80px;
+            height: 28px;
+            line-height: 1;
         }
         
         .admin-btn {
@@ -117,28 +117,32 @@
             background: #e67e22;
         }
         
+        .lan-btn {
+            background: #9b59b6;
+        }
+        
         /* ===== 强制四列布局 ===== */
         .menu-container {
-            padding: 10px; /* 减少内边距 */
+            padding: 10px;
             width: 100%;
             overflow-x: auto;
             flex: 1;
-            min-height: 300px; /* 确保最小高度 */
+            min-height: 300px;
         }
         
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px; /* 减少列间距 */
+            gap: 8px;
             min-width: 800px;
         }
         
         .category-column {
             background: #f8f9fa;
             border-radius: 6px;
-            padding: 10px; /* 减少内边距 */
-            min-height: 180px; /* 减小最小高度 */
-            max-height: 600px; /* 增加最大高度，让菜单显示更多 */
+            padding: 10px;
+            min-height: 180px;
+            max-height: 600px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
@@ -148,7 +152,7 @@
             border-bottom: 2px solid #ff6b6b;
             padding-bottom: 4px;
             margin-bottom: 8px;
-            font-size: 1rem; /* 减小分类标题字体 */
+            font-size: 1rem;
             text-align: center;
             position: sticky;
             top: 0;
@@ -158,39 +162,39 @@
         
         .menu-item {
             background: white;
-            padding: 6px 8px; /* 减少菜品项内边距 */
-            margin-bottom: 4px; /* 减少底部边距 */
-            border-left: 3px solid #4a90e2; /* 减小左边框 */
+            padding: 6px 8px;
+            margin-bottom: 4px;
+            border-left: 3px solid #4a90e2;
             border-radius: 3px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            min-height: 32px; /* 减小最小高度 */
+            min-height: 32px;
         }
         
         .item-name {
             font-weight: bold;
             flex: 1;
             padding-right: 4px;
-            font-size: 0.9rem; /* 减小菜品名字体 */
+            font-size: 0.9rem;
             word-break: break-word;
-            line-height: 1.2; /* 调整行高 */
+            line-height: 1.2;
         }
         
         .item-price {
             color: #ff6b6b;
             font-weight: bold;
             white-space: nowrap;
-            font-size: 0.9rem; /* 减小价格字体 */
+            font-size: 0.9rem;
             margin-left: 4px;
         }
         
         .no-menu {
             text-align: center;
-            padding: 20px; /* 减少内边距 */
+            padding: 20px;
             color: #777;
             grid-column: 1 / 5;
-            font-size: 0.9rem; /* 减小字体 */
+            font-size: 0.9rem;
         }
         
         /* 模态框样式 */
@@ -213,61 +217,61 @@
             transform: translate(-50%, -50%);
             -webkit-transform: translate(-50%, -50%);
             background: white;
-            padding: 15px; /* 减少内边距 */
+            padding: 15px;
             border-radius: 5px;
             width: 90%;
-            max-width: 380px; /* 稍微减小最大宽度 */
+            max-width: 420px;
             max-height: 80vh;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
         
         .modal-title {
-            margin: 0 0 12px 0; /* 减少底部边距 */
+            margin: 0 0 12px 0;
             color: #333;
             text-align: center;
-            font-size: 1.1rem; /* 减小标题字体 */
+            font-size: 1.1rem;
         }
         
         .modal-input {
             width: 100%;
-            padding: 8px; /* 减小内边距 */
-            margin-bottom: 8px; /* 减少底部边距 */
+            padding: 8px;
+            margin-bottom: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
             box-sizing: border-box;
-            font-size: 14px; /* 减小字体 */
+            font-size: 14px;
         }
         
         .modal-buttons {
             display: flex;
-            gap: 8px; /* 减少间距 */
-            margin-top: 12px; /* 减少顶部边距 */
+            gap: 8px;
+            margin-top: 12px;
             flex-wrap: wrap;
         }
         
         .modal-info {
             background: #e8f4fc;
-            padding: 8px; /* 减少内边距 */
+            padding: 8px;
             border-radius: 4px;
-            margin-bottom: 12px; /* 减少底部边距 */
-            border-left: 3px solid #3498db; /* 减小左边框 */
-            font-size: 0.9rem; /* 减小字体 */
+            margin-bottom: 12px;
+            border-left: 3px solid #3498db;
+            font-size: 0.9rem;
         }
         
         .message {
             position: fixed;
-            top: 15px; /* 上移位置 */
+            top: 15px;
             right: 15px;
             background: #50c878;
             color: white;
-            padding: 8px 12px; /* 减少内边距 */
+            padding: 8px 12px;
             border-radius: 4px;
             display: none;
             z-index: 1001;
             max-width: 80%;
             word-break: break-word;
-            font-size: 0.9rem; /* 减小字体 */
+            font-size: 0.9rem;
         }
         
         .message.error {
@@ -278,12 +282,16 @@
             background: #3498db;
         }
         
+        .message.warning {
+            background: #f39c12;
+        }
+        
         .progress-bar {
             width: 100%;
-            height: 5px; /* 减小高度 */
+            height: 5px;
             background: #f0f0f0;
             border-radius: 3px;
-            margin: 8px 0; /* 减少边距 */
+            margin: 8px 0;
             display: none;
         }
         
@@ -297,33 +305,33 @@
         
         .progress-text {
             text-align: center;
-            font-size: 0.85rem; /* 减小字体 */
+            font-size: 0.85rem;
             color: #666;
-            margin: 4px 0; /* 减少边距 */
+            margin: 4px 0;
         }
         
         .url-info {
             background: #f8f9fa;
-            padding: 8px; /* 减少内边距 */
+            padding: 8px;
             border-radius: 4px;
-            margin: 8px 0; /* 减少边距 */
+            margin: 8px 0;
             word-break: break-all;
-            font-size: 0.85rem; /* 减小字体 */
+            font-size: 0.85rem;
         }
         
         .url-test {
             background: #f8f9fa;
-            padding: 8px; /* 减少内边距 */
+            padding: 8px;
             border-radius: 4px;
-            margin: 8px 0; /* 减少边距 */
+            margin: 8px 0;
             display: none;
         }
         
         .url-status {
             display: inline-block;
-            padding: 1px 5px; /* 减少内边距 */
+            padding: 1px 5px;
             border-radius: 2px;
-            font-size: 0.75rem; /* 减小字体 */
+            font-size: 0.75rem;
             margin-left: 4px;
         }
         
@@ -340,6 +348,81 @@
         .loading {
             background: #fff3cd;
             color: #856404;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 15px;
+        }
+        
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            background: #f5f5f5;
+            border-right: 1px solid #ddd;
+            transition: all 0.3s;
+        }
+        
+        .tab:last-child {
+            border-right: none;
+        }
+        
+        .tab.active {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .lan-path-input {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        
+        .lan-path-input input {
+            flex: 1;
+        }
+        
+        .lan-path-input button {
+            white-space: nowrap;
+        }
+        
+        .lan-instruction {
+            background: #f9f9f9;
+            border-left: 3px solid #9b59b6;
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+        
+        .lan-step {
+            margin: 8px 0;
+            padding-left: 5px;
+        }
+        
+        .lan-step-number {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            background: #9b59b6;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 20px;
+            margin-right: 8px;
+            font-size: 0.8rem;
         }
         
         /* 防止文字选中 */
@@ -416,6 +499,11 @@
                 font-size: 0.75rem;
                 padding: 2px 6px;
             }
+            
+            .modal-content {
+                max-width: 95%;
+                padding: 12px;
+            }
         }
         
         /* 超小屏幕处理 */
@@ -446,6 +534,11 @@
                 font-size: 0.7rem;
                 min-width: 65px;
                 height: 22px;
+            }
+            
+            .tab {
+                padding: 8px 5px;
+                font-size: 0.8rem;
             }
         }
         
@@ -493,7 +586,7 @@
             <div style="margin-top: 8px; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center;">
                 <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
                 <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
-                <button class="btn" onclick="showOnlineUpdate()">在线更新</button>
+                <button class="btn" onclick="showUpdateModal()">更新菜单</button>
                 <button class="btn" onclick="toggleFullscreen()">全屏显示</button>
             </div>
         </div>
@@ -529,57 +622,138 @@
         </div>
     </div>
     
-    <!-- 在线更新模态框 -->
-    <div class="modal" id="online-modal">
+    <!-- 更新菜单模态框（含在线和局域网选项） -->
+    <div class="modal" id="update-modal">
         <div class="modal-content">
-            <h3 class="modal-title">在线更新菜单</h3>
+            <h3 class="modal-title">更新菜单</h3>
             
-            <div class="modal-info">
-                <strong><i class="fas fa-info-circle"></i> 在线更新说明：</strong>
-                <p style="margin:3px 0 0 0;font-size:0.85rem;">从在线Excel文件获取最新菜单数据</p>
+            <div class="tab-container">
+                <div class="tab active" onclick="switchTab('online-tab')">在线更新</div>
+                <div class="tab" onclick="switchTab('lan-tab')">局域网更新</div>
             </div>
             
-            <div class="url-info">
-                <strong>默认数据源：</strong>
-                <p style="margin:3px 0;font-size:0.8rem;" id="default-url">https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx</p>
-            </div>
-            
-            <div style="margin:12px 0;">
-                <label style="display:block;margin-bottom:3px;font-size:0.9rem;">自定义Excel链接：</label>
-                <input type="text" class="modal-input" id="custom-url" placeholder="输入Excel文件链接">
-                <div class="modal-buttons" style="margin-top:8px;">
-                    <button class="btn" onclick="testCustomUrl()">测试链接</button>
-                    <button class="btn export-btn" onclick="saveCustomUrl()">保存设置</button>
+            <!-- 在线更新标签页 -->
+            <div id="online-tab" class="tab-content active">
+                <div class="modal-info">
+                    <strong><i class="fas fa-info-circle"></i> 在线更新说明：</strong>
+                    <p style="margin:3px 0 0 0;font-size:0.85rem;">从互联网Excel文件获取最新菜单数据</p>
+                </div>
+                
+                <div class="url-info">
+                    <strong>默认数据源：</strong>
+                    <p style="margin:3px 0;font-size:0.8rem;" id="default-url">https://raw.githubusercontent.com/jiehag/cp/refs/heads/main/menu_data.xlsx</p>
+                </div>
+                
+                <div style="margin:12px 0;">
+                    <label style="display:block;margin-bottom:3px;font-size:0.9rem;">自定义Excel链接：</label>
+                    <input type="text" class="modal-input" id="custom-url" placeholder="输入Excel文件链接">
+                    <div class="modal-buttons" style="margin-top:8px;">
+                        <button class="btn" onclick="testCustomUrl()">测试链接</button>
+                        <button class="btn export-btn" onclick="saveCustomUrl()">保存设置</button>
+                    </div>
+                </div>
+                
+                <div class="progress-bar" id="progress-container">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text"></div>
+                
+                <div class="url-test" id="url-test">
+                    <strong>连接测试结果：</strong>
+                    <div id="test-result"></div>
+                </div>
+                
+                <div style="margin:15px 0;">
+                    <button class="btn online-btn" style="width:100%;margin-bottom:8px;" onclick="downloadOnlineMenu()">
+                        <i class="fas fa-cloud-download-alt"></i> 开始在线更新
+                    </button>
+                    
+                    <button class="btn export-btn" style="width:100%;margin-bottom:8px;" onclick="downloadExcelFile()">
+                        <i class="fas fa-file-download"></i> 下载Excel文件
+                    </button>
+                    
+                    <button class="btn" style="width:100%;" onclick="manualImport()">
+                        <i class="fas fa-file-upload"></i> 手动上传文件
+                    </button>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn" onclick="hideModal('update-modal')">关闭</button>
+                    <button class="btn" onclick="resetToDefaultUrl()">重置为默认</button>
                 </div>
             </div>
             
-            <div class="progress-bar" id="progress-container">
-                <div class="progress-fill" id="progress-fill"></div>
-            </div>
-            <div class="progress-text" id="progress-text"></div>
-            
-            <div class="url-test" id="url-test">
-                <strong>连接测试结果：</strong>
-                <div id="test-result"></div>
-            </div>
-            
-            <div style="margin:15px 0;">
-                <button class="btn online-btn" style="width:100%;margin-bottom:8px;" onclick="downloadOnlineMenu()">
-                    <i class="fas fa-cloud-download-alt"></i> 开始在线更新
-                </button>
+            <!-- 局域网更新标签页 -->
+            <div id="lan-tab" class="tab-content">
+                <div class="modal-info">
+                    <strong><i class="fas fa-network-wired"></i> 局域网更新说明：</strong>
+                    <p style="margin:3px 0 0 0;font-size:0.85rem;">从局域网共享文件夹获取Excel菜单文件</p>
+                </div>
                 
-                <button class="btn export-btn" style="width:100%;margin-bottom:8px;" onclick="downloadExcelFile()">
-                    <i class="fas fa-file-download"></i> 下载Excel文件
-                </button>
+                <div class="lan-instruction">
+                    <strong>使用方法：</strong>
+                    <div class="lan-step">
+                        <span class="lan-step-number">1</span> 将Excel文件放在局域网共享文件夹
+                    </div>
+                    <div class="lan-step">
+                        <span class="lan-step-number">2</span> 在电脑上设置文件夹共享权限
+                    </div>
+                    <div class="lan-step">
+                        <span class="lan-step-number">3</span> 输入共享文件路径，如：\\192.168.1.100\menu\menu.xlsx
+                    </div>
+                    <div class="lan-step">
+                        <span class="lan-step-number">4</span> 点击"加载局域网文件"更新菜单
+                    </div>
+                </div>
                 
-                <button class="btn" style="width:100%;" onclick="manualImport()">
-                    <i class="fas fa-file-upload"></i> 手动上传文件
-                </button>
-            </div>
-            
-            <div class="modal-buttons">
-                <button class="btn" onclick="hideModal('online-modal')">关闭</button>
-                <button class="btn" onclick="resetToDefaultUrl()">重置为默认</button>
+                <div style="margin:12px 0;">
+                    <label style="display:block;margin-bottom:3px;font-size:0.9rem;">局域网文件路径：</label>
+                    <div class="lan-path-input">
+                        <input type="text" class="modal-input" id="lan-path" placeholder="例如: \\电脑名\共享文件夹\菜单.xlsx">
+                        <button class="btn" onclick="browseLanFile()">浏览</button>
+                    </div>
+                    
+                    <div style="margin-top:10px;">
+                        <label style="display:block;margin-bottom:3px;font-size:0.9rem;">或手动选择文件：</label>
+                        <button class="btn lan-btn" style="width:100%;" onclick="selectLanFile()">
+                            <i class="fas fa-folder-open"></i> 选择本地文件
+                        </button>
+                    </div>
+                    
+                    <div class="modal-buttons" style="margin-top:15px;">
+                        <button class="btn" onclick="testLanPath()">测试路径</button>
+                        <button class="btn lan-btn" onclick="saveLanPath()">保存路径</button>
+                    </div>
+                </div>
+                
+                <div class="progress-bar" id="lan-progress-container">
+                    <div class="progress-fill" id="lan-progress-fill"></div>
+                </div>
+                <div class="progress-text" id="lan-progress-text"></div>
+                
+                <div class="url-test" id="lan-url-test">
+                    <strong>连接测试结果：</strong>
+                    <div id="lan-test-result"></div>
+                </div>
+                
+                <div style="margin:15px 0;">
+                    <button class="btn lan-btn" style="width:100%;margin-bottom:8px;" onclick="loadLanFile()">
+                        <i class="fas fa-sync-alt"></i> 加载局域网文件
+                    </button>
+                    
+                    <button class="btn export-btn" style="width:100%;margin-bottom:8px;" onclick="openLanFile()">
+                        <i class="fas fa-external-link-alt"></i> 打开文件位置
+                    </button>
+                    
+                    <button class="btn" style="width:100%;" onclick="showRecentLanFiles()">
+                        <i class="fas fa-history"></i> 最近使用的文件
+                    </button>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="btn" onclick="hideModal('update-modal')">关闭</button>
+                    <button class="btn" onclick="clearLanHistory()">清除历史</button>
+                </div>
             </div>
         </div>
     </div>
@@ -597,6 +771,20 @@
         </div>
     </div>
 
+    <!-- 最近文件列表模态框 -->
+    <div class="modal" id="recent-files-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">最近使用的文件</h3>
+            <div id="recent-files-list" style="max-height:300px;overflow-y:auto;margin:15px 0;">
+                <div style="text-align:center;padding:20px;color:#777;" id="no-recent-files">暂无最近使用的文件</div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideModal('recent-files-modal')">关闭</button>
+                <button class="btn" onclick="clearLanHistory()">清除所有记录</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 使用简单的Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -610,6 +798,7 @@
         var isAdmin = false;
         var currentDate = "";
         var isFullscreen = false;
+        var recentLanFiles = [];
         
         // ===== 定义固定的四个分类 =====
         var FIXED_CATEGORIES = ["主菜", "素菜", "主食", "汤品"];
@@ -627,6 +816,14 @@
         var progressText = document.getElementById('progress-text');
         var urlTestDiv = document.getElementById('url-test');
         var testResultDiv = document.getElementById('test-result');
+        var lanProgressContainer = document.getElementById('lan-progress-container');
+        var lanProgressFill = document.getElementById('lan-progress-fill');
+        var lanProgressText = document.getElementById('lan-progress-text');
+        var lanUrlTestDiv = document.getElementById('lan-url-test');
+        var lanTestResultDiv = document.getElementById('lan-test-result');
+        var lanPathInput = document.getElementById('lan-path');
+        var recentFilesList = document.getElementById('recent-files-list');
+        var noRecentFiles = document.getElementById('no-recent-files');
         
         // ===== 基本工具函数 =====
         function showMessage(text, type) {
@@ -637,6 +834,8 @@
                 messageEl.classList.add('error');
             } else if (type === 'info') {
                 messageEl.classList.add('info');
+            } else if (type === 'warning') {
+                messageEl.classList.add('warning');
             }
             
             messageEl.style.display = 'block';
@@ -669,6 +868,33 @@
             var date = new Date(dateStr);
             var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
             return dateStr + ' 星期' + weekdays[date.getDay()];
+        }
+        
+        // ===== 标签切换功能 =====
+        function switchTab(tabId) {
+            // 移除所有标签的active类
+            var tabs = document.querySelectorAll('.tab');
+            tabs.forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            
+            // 隐藏所有标签内容
+            var tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(function(content) {
+                content.classList.remove('active');
+            });
+            
+            // 激活选中的标签
+            var activeTab = document.querySelector('[onclick="switchTab(\'' + tabId + '\')"]');
+            if (activeTab) {
+                activeTab.classList.add('active');
+            }
+            
+            // 显示选中的标签内容
+            var activeContent = document.getElementById(tabId);
+            if (activeContent) {
+                activeContent.classList.add('active');
+            }
         }
         
         // ===== 修复全屏功能 - 显示整个页面 =====
@@ -729,7 +955,7 @@
                 document.querySelector('.container').style.margin = '0';
                 document.querySelector('.container').style.borderRadius = '0';
                 document.querySelector('.container').style.height = '100vh';
-                document.querySelector('.menu-container').style.maxHeight = 'calc(100vh - 150px)'; /* 调整最大高度 */
+                document.querySelector('.menu-container').style.maxHeight = 'calc(100vh - 150px)';
                 
                 isFullscreen = true;
                 updateFullscreenButton();
@@ -860,6 +1086,18 @@
                     document.getElementById('custom-url').value = '';
                 }
                 
+                // 加载局域网文件历史
+                var savedLanFiles = localStorage.getItem('lan_files_history');
+                if (savedLanFiles) {
+                    recentLanFiles = JSON.parse(savedLanFiles);
+                }
+                
+                // 加载最后使用的局域网路径
+                var savedLanPath = localStorage.getItem('lan_file_path');
+                if (savedLanPath) {
+                    lanPathInput.value = savedLanPath;
+                }
+                
                 return true;
             } catch (e) {
                 showMessage('加载数据失败: ' + e.message, 'error');
@@ -875,6 +1113,14 @@
             } catch (e) {
                 showMessage('保存数据失败', 'error');
                 return false;
+            }
+        }
+        
+        function saveLanHistory() {
+            try {
+                localStorage.setItem('lan_files_history', JSON.stringify(recentLanFiles));
+            } catch (e) {
+                console.error('保存局域网历史失败:', e);
             }
         }
         
@@ -954,21 +1200,18 @@
                 html += '</div></div>';
             }
             
-            html += '</div>'; // 关闭menu-grid
+            html += '</div>';
             
             menuContainer.innerHTML = html;
             
-            // 强制调整布局
             setTimeout(function() {
                 adjustLayout();
             }, 100);
         }
         
-        // 调整布局函数
         function adjustLayout() {
             var menuGrid = document.querySelector('.menu-grid');
             if (menuGrid) {
-                // 强制设置最小宽度
                 var containerWidth = menuContainer.offsetWidth;
                 if (containerWidth < 800) {
                     menuGrid.style.minWidth = '600px';
@@ -978,7 +1221,6 @@
             }
         }
         
-        // 窗口调整大小时重新调整布局
         window.addEventListener('resize', adjustLayout);
         
         function editItem(date, category, index) {
@@ -1189,13 +1431,16 @@
             }
         }
         
-        // ===== 在线更新功能 =====
-        function showOnlineUpdate() {
-            showModal('online-modal');
+        // ===== 更新菜单模态框 =====
+        function showUpdateModal() {
+            showModal('update-modal');
             urlTestDiv.style.display = 'none';
             progressContainer.style.display = 'none';
+            lanUrlTestDiv.style.display = 'none';
+            lanProgressContainer.style.display = 'none';
         }
         
+        // ===== 在线更新功能 =====
         function getExcelUrl() {
             var customUrl = document.getElementById('custom-url').value.trim();
             return customUrl || DEFAULT_EXCEL_URL;
@@ -1388,7 +1633,7 @@
                 var file = e.target.files[0];
                 if (!file) return;
                 
-                hideModal('online-modal');
+                hideModal('update-modal');
                 processExcelFile(file, currentDate);
             };
             
@@ -1399,6 +1644,279 @@
             progressContainer.style.display = 'block';
             progressFill.style.width = percent + '%';
             progressText.textContent = text;
+        }
+        
+        // ===== 局域网更新功能 =====
+        function browseLanFile() {
+            showMessage('提示: 在Windows中，可以输入类似 \\\\计算机名\\共享文件夹\\菜单.xlsx 的路径', 'info');
+        }
+        
+        function selectLanFile() {
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx, .xls';
+            
+            input.onchange = function(e) {
+                var file = e.target.files[0];
+                if (!file) return;
+                
+                // 保存文件路径到输入框
+                var filePath = file.path || file.name;
+                lanPathInput.value = filePath;
+                
+                // 添加到历史记录
+                addToLanHistory(filePath, file.name);
+                
+                showMessage('已选择文件: ' + file.name, 'info');
+            };
+            
+            input.click();
+        }
+        
+        function testLanPath() {
+            var path = lanPathInput.value.trim();
+            if (!path) {
+                showMessage('请输入局域网文件路径', 'error');
+                return;
+            }
+            
+            lanUrlTestDiv.style.display = 'block';
+            lanTestResultDiv.innerHTML = '<div style="margin:5px 0;">测试路径中... <span class="url-status loading">测试中</span></div>';
+            
+            // 尝试使用fetch API访问文件
+            fetch(path, { 
+                method: 'HEAD',
+                mode: 'no-cors'
+            }).then(function(response) {
+                // 注意：no-cors模式无法读取响应状态，所以这里总是显示成功
+                lanTestResultDiv.innerHTML = '<div style="margin:5px 0;">路径有效（可能） <span class="url-status success">可用</span></div>';
+                showMessage('路径测试完成（实际可用性需加载测试）', 'info');
+            }).catch(function(error) {
+                lanTestResultDiv.innerHTML = '<div style="margin:5px 0;">路径访问失败: ' + error.message + ' <span class="url-status error-status">不可用</span></div>';
+                showMessage('路径访问失败: ' + error.message, 'error');
+            });
+        }
+        
+        function saveLanPath() {
+            var path = lanPathInput.value.trim();
+            if (path) {
+                localStorage.setItem('lan_file_path', path);
+                showMessage('局域网路径已保存', 'info');
+                
+                // 添加到历史记录
+                var fileName = path.split('\\').pop() || path.split('/').pop();
+                addToLanHistory(path, fileName);
+            } else {
+                localStorage.removeItem('lan_file_path');
+                showMessage('已清除局域网路径', 'info');
+            }
+        }
+        
+        function addToLanHistory(path, name) {
+            // 检查是否已存在
+            for (var i = 0; i < recentLanFiles.length; i++) {
+                if (recentLanFiles[i].path === path) {
+                    // 移动到最前面
+                    var existing = recentLanFiles.splice(i, 1)[0];
+                    recentLanFiles.unshift(existing);
+                    saveLanHistory();
+                    return;
+                }
+            }
+            
+            // 添加到历史记录
+            recentLanFiles.unshift({
+                path: path,
+                name: name,
+                date: new Date().toLocaleString()
+            });
+            
+            // 限制历史记录数量
+            if (recentLanFiles.length > 10) {
+                recentLanFiles = recentLanFiles.slice(0, 10);
+            }
+            
+            saveLanHistory();
+        }
+        
+        function loadLanFile() {
+            var path = lanPathInput.value.trim();
+            if (!path) {
+                showMessage('请输入局域网文件路径', 'error');
+                return;
+            }
+            
+            showLanProgress(10, '正在读取文件...');
+            
+            // 尝试使用fetch获取文件
+            fetch(path).then(function(response) {
+                if (!response.ok) {
+                    throw new Error('HTTP ' + response.status);
+                }
+                return response.arrayBuffer();
+            }).then(function(arrayBuffer) {
+                showLanProgress(50, '解析Excel数据...');
+                
+                try {
+                    var data = new Uint8Array(arrayBuffer);
+                    var workbook = window.XLSX.read(data, { type: 'array' });
+                    
+                    // 处理Excel数据
+                    var today = getTodayString();
+                    var sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    var jsonData = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
+                    
+                    var newMenu = {};
+                    // 初始化四个固定分类
+                    for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
+                        newMenu[FIXED_CATEGORIES[i]] = [];
+                    }
+                    
+                    for (var i = 1; i < jsonData.length; i++) {
+                        var row = jsonData[i];
+                        if (row && row.length >= 3) {
+                            var category = row[0] || '主菜';
+                            var name = row[1];
+                            var price = row[2];
+                            
+                            if (name && price !== undefined) {
+                                // 如果分类不在固定分类中，默认归类到主菜
+                                if (FIXED_CATEGORIES.indexOf(category) === -1) {
+                                    category = '主菜';
+                                }
+                                
+                                if (!newMenu[category]) {
+                                    newMenu[category] = [];
+                                }
+                                
+                                newMenu[category].push({
+                                    name: String(name).trim(),
+                                    price: Number(price) || 0
+                                });
+                            }
+                        }
+                    }
+                    
+                    menuData[today] = newMenu;
+                    
+                    if (saveData()) {
+                        showLanProgress(100, '更新完成！');
+                        
+                        // 添加到历史记录
+                        var fileName = path.split('\\').pop() || path.split('/').pop();
+                        addToLanHistory(path, fileName);
+                        
+                        setTimeout(function() {
+                            lanProgressContainer.style.display = 'none';
+                            showMenu(today);
+                            showMessage('局域网文件加载成功！', 'info');
+                            hideModal('update-modal');
+                        }, 1000);
+                    }
+                } catch (error) {
+                    lanProgressContainer.style.display = 'none';
+                    showMessage('解析Excel失败: ' + error.message, 'error');
+                }
+            }).catch(function(error) {
+                lanProgressContainer.style.display = 'none';
+                showMessage('加载文件失败: ' + error.message, 'error');
+                
+                // 尝试备用方法：使用文件输入
+                if (confirm('无法直接访问文件，是否尝试手动选择文件？')) {
+                    selectLanFile();
+                }
+            });
+        }
+        
+        function openLanFile() {
+            var path = lanPathInput.value.trim();
+            if (!path) {
+                showMessage('请输入文件路径', 'error');
+                return;
+            }
+            
+            // 尝试打开文件或文件夹
+            try {
+                // 对于Windows UNC路径
+                if (path.startsWith('\\\\')) {
+                    // 尝试打开网络路径
+                    window.open('file:' + path, '_blank');
+                } else {
+                    // 尝试打开本地路径
+                    window.open('file://' + path, '_blank');
+                }
+                showMessage('尝试打开文件位置', 'info');
+            } catch (error) {
+                showMessage('无法打开文件位置: ' + error.message, 'error');
+            }
+        }
+        
+        function showRecentLanFiles() {
+            showModal('recent-files-modal');
+            renderRecentFiles();
+        }
+        
+        function renderRecentFiles() {
+            if (recentLanFiles.length === 0) {
+                noRecentFiles.style.display = 'block';
+                recentFilesList.innerHTML = '<div style="text-align:center;padding:20px;color:#777;">暂无最近使用的文件</div>';
+                return;
+            }
+            
+            noRecentFiles.style.display = 'none';
+            var html = '';
+            
+            for (var i = 0; i < recentLanFiles.length; i++) {
+                var file = recentLanFiles[i];
+                html += '<div style="padding:10px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;">';
+                html += '<div>';
+                html += '<div style="font-weight:bold;font-size:0.9rem;">' + file.name + '</div>';
+                html += '<div style="font-size:0.8rem;color:#777;margin-top:3px;">' + file.path + '</div>';
+                html += '<div style="font-size:0.75rem;color:#999;margin-top:2px;">' + file.date + '</div>';
+                html += '</div>';
+                html += '<div>';
+                html += '<button class="btn" style="padding:3px 8px;font-size:0.75rem;margin-left:5px;" onclick="useRecentFile(' + i + ')">使用</button>';
+                html += '<button class="btn" style="padding:3px 8px;font-size:0.75rem;margin-left:5px;background:#e74c3c;" onclick="removeRecentFile(' + i + ')">删除</button>';
+                html += '</div>';
+                html += '</div>';
+            }
+            
+            recentFilesList.innerHTML = html;
+        }
+        
+        function useRecentFile(index) {
+            if (index >= 0 && index < recentLanFiles.length) {
+                var file = recentLanFiles[index];
+                lanPathInput.value = file.path;
+                hideModal('recent-files-modal');
+                showMessage('已选择文件: ' + file.name, 'info');
+            }
+        }
+        
+        function removeRecentFile(index) {
+            if (index >= 0 && index < recentLanFiles.length) {
+                recentLanFiles.splice(index, 1);
+                saveLanHistory();
+                renderRecentFiles();
+                showMessage('已删除记录', 'info');
+            }
+        }
+        
+        function clearLanHistory() {
+            if (confirm('确定要清除所有历史记录吗？')) {
+                recentLanFiles = [];
+                localStorage.removeItem('lan_files_history');
+                if (recentFilesList) {
+                    renderRecentFiles();
+                }
+                showMessage('已清除所有历史记录', 'info');
+            }
+        }
+        
+        function showLanProgress(percent, text) {
+            lanProgressContainer.style.display = 'block';
+            lanProgressFill.style.width = percent + '%';
+            lanProgressText.textContent = text;
         }
         
         // ===== 其他功能 =====
@@ -1495,15 +2013,16 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     hideModal('password-modal');
-                    hideModal('online-modal');
+                    hideModal('update-modal');
                     hideModal('change-password-modal');
+                    hideModal('recent-files-modal');
                 }
             });
             
             // 显示欢迎信息
             setTimeout(function() {
                 showMessage('餐厅菜单系统已加载完成');
-                adjustLayout(); // 初始布局调整
+                adjustLayout();
             }, 1000);
         }
         
