@@ -87,17 +87,32 @@
             gap: 15px;
         }
         
-        /* 响应式：平板设备显示2列 */
-        @media (max-width: 992px) {
+        /* 修复：平板设备在768px-1024px之间仍然显示4列 */
+        /* 小屏幕平板：显示2列 */
+        @media (max-width: 768px) {
             .menu-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
         
-        /* 响应式：手机设备显示1列 */
-        @media (max-width: 576px) {
+        /* 手机设备：显示1列 */
+        @media (max-width: 480px) {
             .menu-grid {
                 grid-template-columns: 1fr;
+            }
+            
+            .btn {
+                width: 100%;
+                margin: 5px 0;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 15px;
             }
         }
         
@@ -288,19 +303,23 @@
             color: #856404;
         }
         
-        @media (max-width: 480px) {
-            .btn {
-                width: 100%;
-                margin: 5px 0;
+        /* 添加平板横屏的特殊样式 */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            .menu-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
             }
             
-            .modal-buttons {
-                flex-direction: column;
+            .category-column {
+                max-height: 350px;
+                padding: 12px;
             }
-            
-            .modal-content {
-                width: 95%;
-                padding: 15px;
+        }
+        
+        /* 平板竖屏：2列 */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: portrait) {
+            .menu-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -541,19 +560,23 @@
                     "主菜": [
                         { name: "红烧肉", price: 12 },
                         { name: "清蒸鱼", price: 15 },
-                        { name: "青椒炒猪肝", price: 10 }
+                        { name: "青椒炒猪肝", price: 10 },
+                        { name: "宫保鸡丁", price: 11 }
                     ],
                     "素菜": [
                         { name: "芹菜炒豆干", price: 4 },
-                        { name: "麻婆豆腐", price: 5 }
+                        { name: "麻婆豆腐", price: 5 },
+                        { name: "蒜蓉西兰花", price: 6 }
                     ],
                     "主食": [
                         { name: "米饭", price: 2 },
-                        { name: "馒头", price: 1 }
+                        { name: "馒头", price: 1 },
+                        { name: "花卷", price: 1 }
                     ],
                     "汤品": [
                         { name: "紫菜蛋花汤", price: 3 },
-                        { name: "西红柿鸡蛋汤", price: 3 }
+                        { name: "西红柿鸡蛋汤", price: 3 },
+                        { name: "酸辣汤", price: 4 }
                     ]
                 }
             };
@@ -1051,7 +1074,7 @@
             } else if (elem.mozRequestFullScreen) {
                 elem.mozRequestFullScreen();
             } else if (elem.webkitRequestFullscreen) {
-                elem.webkitRequestFullscreen();
+                elem.webkitRequestfullscreen();
             }
         }
         
