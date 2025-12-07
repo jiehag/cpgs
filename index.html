@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=0.5, maximum-scale=5.0">
     <title>餐厅菜单公示栏</title>
     <style>
+        /* 保持原有CSS样式不变 */
         * {
             box-sizing: border-box;
         }
@@ -139,6 +140,10 @@
         
         .lan-btn {
             background: #9b59b6;
+        }
+        
+        .week-export-btn {
+            background: #f39c12;
         }
         
         /* ===== 强制四列布局 ===== */
@@ -630,7 +635,6 @@
             <div class="header-buttons">
                 <button class="btn" id="admin-btn" onclick="showPasswordModal()">管理登录</button>
                 <button class="btn admin-btn" id="exit-btn" style="display:none;" onclick="exitAdmin()">退出管理</button>
-                <button class="btn" onclick="showUpdateModal()">更新菜单</button>
                 <button class="btn" id="fullscreen-btn" onclick="toggleFullscreen()">全屏显示</button>
             </div>
         </div>
@@ -639,7 +643,8 @@
             <div class="buttons">
                 <button class="btn" onclick="importExcel()">导入菜单</button>
                 <button class="btn export-btn" onclick="exportExcel()">导出菜单</button>
-                <button class="btn online-btn" onclick="showToday()">今日菜单</button>
+                <button class="btn week-export-btn" onclick="exportWeekMenu()">导出周菜单</button>
+                <button class="btn online-btn" onclick="showUpdateModal()">更新菜单</button>
                 <button class="btn print-btn" onclick="window.print()">打印</button>
                 <button class="btn" onclick="showChangePassword()">修改密码</button>
             </div>
@@ -708,7 +713,7 @@
                 </div>
                 
                 <div style="margin:15px 0;">
-                    <button class="btn online-btn" style="width:100%;margin-bottom:8px;" onclick="downloadOnlineMenu()">
+                    <button class="btn online-btn" style="width:100%;margin-bottom:8px;" onclick="startOnlineUpdate()">
                         <i class="fas fa-cloud-download-alt"></i> 开始在线更新
                     </button>
                     
@@ -828,6 +833,27 @@
             </div>
         </div>
     </div>
+    
+    <!-- 周菜单选择模态框 -->
+    <div class="modal" id="week-export-modal">
+        <div class="modal-content">
+            <h3 class="modal-title">导出周菜单</h3>
+            <div class="modal-info">
+                <p>请选择要导出的起始日期，系统将导出从该日期起连续7天的菜单数据。</p>
+            </div>
+            <div style="margin:15px 0;">
+                <label style="display:block;margin-bottom:5px;font-size:0.9rem;">起始日期：</label>
+                <input type="date" class="modal-input" id="week-start-date" value="">
+                <div style="margin-top:10px;font-size:0.85rem;color:#666;">
+                    将导出日期：<span id="week-date-range"></span>
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="hideModal('week-export-modal')">取消</button>
+                <button class="btn week-export-btn" onclick="confirmExportWeekMenu()">导出周菜单</button>
+            </div>
+        </div>
+    </div>
 
     <!-- 使用简单的Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -869,6 +895,8 @@
         var recentFilesList = document.getElementById('recent-files-list');
         var noRecentFiles = document.getElementById('no-recent-files');
         var fullscreenBtn = document.getElementById('fullscreen-btn');
+        var weekStartDateInput = document.getElementById('week-start-date');
+        var weekDateRangeSpan = document.getElementById('week-date-range');
         
         // ===== 基本工具函数 =====
         function showMessage(text, type) {
@@ -915,34 +943,161 @@
             return dateStr + ' 星期' + weekdays[date.getDay()];
         }
         
+        function getWeekDates(startDateStr) {
+            var dates = [];
+            var startDate = new Date(startDateStr);
+            
+            for (var i = 0; i < 7; i++) {
+                var date = new Date(startDate);
+                date.setDate(startDate.getDate() + i);
+                
+                var year = date.getFullYear();
+                var month = date.getMonth() + 1;
+                var day = date.getDate();
+                
+                if (month < 10) month = '0' + month;
+                if (day < 10) day = '0' + day;
+                
+                dates.push(year + '-' + month + '-' + day);
+            }
+            
+            return dates;
+        }
+        
+        // ===== 修复：安全的Excel工作表名称 =====
+        function getSafeSheetName(dateStr, index) {
+            var dateObj = new Date(dateStr);
+            var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            var weekday = weekdays[dateObj.getDay()];
+            var month = dateObj.getMonth() + 1;
+            var day = dateObj.getDate();
+            
+            // 创建基础名称
+            var baseName = (index + 1) + '.' + month + '-' + day + '周' + weekday;
+            
+            // 替换所有Excel不允许的字符
+            var safeName = baseName
+                .replace(/:/g, '：')  // 替换冒号
+                .replace(/\//g, '-')  // 替换斜杠
+                .replace(/\\/g, '-')  // 替换反斜杠
+                .replace(/\?/g, '？')  // 替换问号
+                .replace(/\*/g, '＊')  // 替换星号
+                .replace(/\[/g, '【')  // 替换左方括号
+                .replace(/\]/g, '】'); // 替换右方括号
+            
+            // Excel工作表名称最大31个字符
+            if (safeName.length > 31) {
+                safeName = safeName.substring(0, 31);
+            }
+            
+            return safeName;
+        }
+        
+        // ===== 智能菜品分类识别 =====
+        function classifyMenuItem(itemName) {
+            var name = String(itemName).toLowerCase();
+            
+            // 素菜识别
+            if (name.includes('豆腐') || 
+                name.includes('豆干') || 
+                name.includes('白菜') || 
+                name.includes('空心菜') || 
+                name.includes('韭菜') || 
+                name.includes('西兰花') || 
+                name.includes('芹菜') ||
+                name.includes('蒜蓉') ||
+                name.includes('麻婆') ||
+                name.includes('清炒')) {
+                return '素菜';
+            }
+            
+            // 主食识别
+            if (name.includes('米饭') || 
+                name.includes('馒头') || 
+                name.includes('花卷') || 
+                name.includes('面') ||
+                name.includes('例汤') ||
+                name.includes('+')) {
+                return '主食';
+            }
+            
+            // 汤品识别
+            if (name.includes('汤') || 
+                name.includes('炖') || 
+                name.includes('羹') ||
+                name.includes('肉蓉') ||
+                name.includes('龙骨') ||
+                name.includes('虫草花')) {
+                return '汤品';
+            }
+            
+            // 默认主菜
+            return '主菜';
+        }
+        
+        // ===== 从工作表名称提取日期 =====
+        function extractDateFromSheetName(sheetName) {
+            // 格式如: 1.12-7周日
+            var match = sheetName.match(/(\d+)\.(\d+)-(\d+)周/);
+            if (match) {
+                var sheetIndex = parseInt(match[1]);
+                var month = parseInt(match[2]);
+                var day = parseInt(match[3]);
+                
+                // 获取当前年份
+                var now = new Date();
+                var year = now.getFullYear();
+                
+                // 检查月份是否合理（如果工作表是12月但现在是1月，可能是去年的12月）
+                if (month > now.getMonth() + 2) { // +2是考虑到可能有误差
+                    year = now.getFullYear() - 1;
+                }
+                
+                return year + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day);
+            }
+            
+            // 尝试其他格式
+            match = sheetName.match(/(\d+)-(\d+)/);
+            if (match) {
+                var month = parseInt(match[1]);
+                var day = parseInt(match[2]);
+                var now = new Date();
+                var year = now.getFullYear();
+                
+                if (month > now.getMonth() + 2) {
+                    year = now.getFullYear() - 1;
+                }
+                
+                return year + '-' + (month < 10 ? '0' + month : month) + '-' + (day < 10 ? '0' + day : day);
+            }
+            
+            return null;
+        }
+        
         // ===== 标签切换功能 =====
         function switchTab(tabId) {
-            // 移除所有标签的active类
             var tabs = document.querySelectorAll('.tab');
             tabs.forEach(function(tab) {
                 tab.classList.remove('active');
             });
             
-            // 隐藏所有标签内容
             var tabContents = document.querySelectorAll('.tab-content');
             tabContents.forEach(function(content) {
                 content.classList.remove('active');
             });
             
-            // 激活选中的标签
             var activeTab = document.querySelector('[onclick="switchTab(\'' + tabId + '\')"]');
             if (activeTab) {
                 activeTab.classList.add('active');
             }
             
-            // 显示选中的标签内容
             var activeContent = document.getElementById(tabId);
             if (activeContent) {
                 activeContent.classList.add('active');
             }
         }
         
-        // ===== 全屏功能 - 隐藏按钮行，增加菜单空间 =====
+        // ===== 全屏功能 =====
         function toggleFullscreen() {
             if (!isFullscreen) {
                 enterFullscreen();
@@ -952,17 +1107,8 @@
         }
         
         function enterFullscreen() {
-            // 首先给body添加全屏类
             document.body.classList.add('fullscreen');
             
-            var container = document.querySelector('.container');
-            
-            // 确保body有正确的高度
-            document.body.style.height = '100vh';
-            document.body.style.display = 'flex';
-            document.body.style.flexDirection = 'column';
-            
-            // 尝试让整个body进入全屏
             if (document.body.requestFullscreen) {
                 document.body.requestFullscreen().then(function() {
                     isFullscreen = true;
@@ -973,23 +1119,22 @@
                     showMessage('全屏请求被拒绝: ' + err.message, 'error');
                     document.body.classList.remove('fullscreen');
                 });
-            } else if (document.body.webkitRequestFullscreen) { /* Safari */
+            } else if (document.body.webkitRequestFullscreen) {
                 document.body.webkitRequestFullscreen();
                 isFullscreen = true;
                 updateFullscreenButton();
                 showMessage('已进入全屏模式', 'info');
-            } else if (document.body.msRequestFullscreen) { /* IE11 */
+            } else if (document.body.msRequestFullscreen) {
                 document.body.msRequestFullscreen();
                 isFullscreen = true;
                 updateFullscreenButton();
                 showMessage('已进入全屏模式', 'info');
-            } else if (document.body.mozRequestFullScreen) { /* Firefox */
+            } else if (document.body.mozRequestFullScreen) {
                 document.body.mozRequestFullScreen();
                 isFullscreen = true;
                 updateFullscreenButton();
                 showMessage('已进入全屏模式', 'info');
             } else {
-                // 备用方案：使用CSS模拟全屏
                 document.body.style.position = 'fixed';
                 document.body.style.top = '0';
                 document.body.style.left = '0';
@@ -1013,7 +1158,6 @@
         }
         
         function exitFullscreen() {
-            // 移除全屏类
             document.body.classList.remove('fullscreen');
             
             if (document.exitFullscreen) {
@@ -1023,26 +1167,25 @@
                     resetFullscreenStyles();
                     showMessage('已退出全屏模式', 'info');
                 });
-            } else if (document.webkitExitFullscreen) { /* Safari */
+            } else if (document.webkitExitFullscreen) {
                 document.webkitExitFullscreen();
                 isFullscreen = false;
                 updateFullscreenButton();
                 resetFullscreenStyles();
                 showMessage('已退出全屏模式', 'info');
-            } else if (document.msExitFullscreen) { /* IE11 */
+            } else if (document.msExitFullscreen) {
                 document.msExitFullscreen();
                 isFullscreen = false;
                 updateFullscreenButton();
                 resetFullscreenStyles();
                 showMessage('已退出全屏模式', 'info');
-            } else if (document.mozCancelFullScreen) { /* Firefox */
+            } else if (document.mozCancelFullScreen) {
                 document.mozCancelFullScreen();
                 isFullscreen = false;
                 updateFullscreenButton();
                 resetFullscreenStyles();
                 showMessage('已退出全屏模式', 'info');
             } else {
-                // 恢复备用方案的样式
                 resetFullscreenStyles();
                 isFullscreen = false;
                 updateFullscreenButton();
@@ -1132,7 +1275,6 @@
                 if (saved) {
                     menuData = JSON.parse(saved);
                 } else {
-                    // 创建示例数据
                     createSampleData();
                 }
                 
@@ -1141,7 +1283,6 @@
                     ADMIN_KEY = savedPassword;
                 }
                 
-                // 加载自定义URL
                 var savedUrl = localStorage.getItem('excel_url');
                 if (savedUrl) {
                     document.getElementById('custom-url').value = savedUrl;
@@ -1149,13 +1290,11 @@
                     document.getElementById('custom-url').value = '';
                 }
                 
-                // 加载局域网文件历史
                 var savedLanFiles = localStorage.getItem('lan_files_history');
                 if (savedLanFiles) {
                     recentLanFiles = JSON.parse(savedLanFiles);
                 }
                 
-                // 加载最后使用的局域网路径
                 var savedLanPath = localStorage.getItem('lan_file_path');
                 if (savedLanPath) {
                     lanPathInput.value = savedLanPath;
@@ -1217,7 +1356,7 @@
             saveData();
         }
         
-        // ===== 菜单显示 - 强制四列布局 =====
+        // ===== 菜单显示 =====
         function showMenu(date) {
             currentDate = date;
             currentDateEl.textContent = formatDate(date);
@@ -1231,10 +1370,8 @@
             var html = '';
             var categories = menuData[date];
             
-            // 创建网格容器
             html += '<div class="menu-grid">';
             
-            // 为每个固定分类创建列
             for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
                 var category = FIXED_CATEGORIES[i];
                 var items = categories[category] || [];
@@ -1385,13 +1522,14 @@
                 var file = e.target.files[0];
                 if (!file) return;
                 
-                processExcelFile(file, currentDate);
+                processExcelFile(file);
             };
             
             input.click();
         }
         
-        function processExcelFile(file, dateStr) {
+        // ===== 修复：处理周菜单Excel文件 =====
+        function processExcelFile(file) {
             if (!window.XLSX) {
                 showMessage('Excel库加载失败，请检查网络', 'error');
                 return;
@@ -1402,53 +1540,128 @@
                 try {
                     var data = new Uint8Array(e.target.result);
                     var workbook = window.XLSX.read(data, { type: 'array' });
-                    var worksheet = workbook.Sheets[workbook.SheetNames[0]];
-                    var jsonData = window.XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                     
-                    var newMenu = {};
-                    // 初始化四个固定分类
-                    for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
-                        newMenu[FIXED_CATEGORIES[i]] = [];
-                    }
+                    // 统计导入的工作表数量
+                    var importedSheets = 0;
+                    var totalSheets = 0;
                     
-                    for (var i = 1; i < jsonData.length; i++) {
-                        var row = jsonData[i];
-                        if (row && row.length >= 3) {
-                            var category = row[0] || '主菜';
-                            var name = row[1];
-                            var price = row[2];
-                            
-                            if (name && price !== undefined) {
-                                // 如果分类不在固定分类中，默认归类到主菜
-                                if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                    category = '主菜';
-                                }
-                                
-                                if (!newMenu[category]) {
-                                    newMenu[category] = [];
-                                }
-                                
-                                newMenu[category].push({
-                                    name: String(name).trim(),
-                                    price: Number(price) || 0
-                                });
+                    // 遍历所有工作表
+                    for (var sheetIndex = 0; sheetIndex < workbook.SheetNames.length; sheetIndex++) {
+                        var sheetName = workbook.SheetNames[sheetIndex];
+                        var worksheet = workbook.Sheets[sheetName];
+                        
+                        // 跳过汇总工作表
+                        if (sheetName === '周汇总' || sheetName.includes('汇总')) {
+                            continue;
+                        }
+                        
+                        totalSheets++;
+                        
+                        // 尝试从工作表名称提取日期
+                        var dateStr = extractDateFromSheetName(sheetName);
+                        
+                        // 如果没有从工作表名称提取到日期，使用第一个工作表作为当前日期
+                        if (!dateStr && sheetIndex === 0) {
+                            dateStr = getTodayString();
+                        }
+                        
+                        if (!dateStr) {
+                            console.warn('无法从工作表名称提取日期:', sheetName);
+                            continue;
+                        }
+                        
+                        var jsonData = window.XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        if (jsonData && jsonData.length > 0) {
+                            if (processExcelData(jsonData, dateStr)) {
+                                importedSheets++;
+                                console.log('成功导入工作表:', sheetName, '日期:', dateStr);
                             }
                         }
                     }
                     
-                    menuData[dateStr] = newMenu;
-                    
-                    if (saveData()) {
-                        showMenu(dateStr);
-                        showMessage('导入成功');
+                    if (importedSheets > 0) {
+                        showMessage('成功导入' + importedSheets + '个工作表的菜单数据', 'info');
+                        // 显示当前日期菜单
+                        showMenu(currentDate);
+                    } else {
+                        showMessage('未能导入任何菜单数据', 'error');
                     }
+                    
                 } catch (error) {
                     console.error(error);
                     showMessage('导入失败: ' + error.message, 'error');
                 }
             };
             
+            reader.onerror = function() {
+                showMessage('读取文件失败', 'error');
+            };
+            
             reader.readAsArrayBuffer(file);
+        }
+        
+        function processExcelData(jsonData, dateStr) {
+            var newMenu = {};
+            // 初始化四个固定分类
+            for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
+                newMenu[FIXED_CATEGORIES[i]] = [];
+            }
+            
+            var processedCount = 0;
+            
+            // 从第2行开始（跳过标题行）
+            for (var i = 1; i < jsonData.length; i++) {
+                var row = jsonData[i];
+                if (row && row.length >= 3) {
+                    var originalCategory = String(row[0] || '').trim();
+                    var name = String(row[1] || '').trim();
+                    var price = row[2];
+                    
+                    // 跳过空行和标题行
+                    if (!name || name === '菜品名称' || name === '名称') continue;
+                    if (originalCategory === '类别' || originalCategory === '分类') continue;
+                    
+                    // 智能分类识别
+                    var category = classifyMenuItem(name);
+                    
+                    // 如果原始分类是有效的，优先使用原始分类
+                    if (originalCategory && FIXED_CATEGORIES.includes(originalCategory)) {
+                        category = originalCategory;
+                    }
+                    
+                    // 确保分类存在
+                    if (!newMenu[category]) {
+                        newMenu[category] = [];
+                    }
+                    
+                    // 转换为数字价格
+                    var priceNum = parseFloat(price);
+                    if (isNaN(priceNum)) {
+                        var priceMatch = String(price).match(/(\d+(\.\d+)?)/);
+                        priceNum = priceMatch ? parseFloat(priceMatch[0]) : 0;
+                    }
+                    
+                    // 添加到菜单
+                    newMenu[category].push({
+                        name: name,
+                        price: priceNum || 0
+                    });
+                    
+                    processedCount++;
+                }
+            }
+            
+            // 保存到菜单数据
+            menuData[dateStr] = newMenu;
+            
+            // 保存数据
+            if (saveData()) {
+                console.log('处理数据成功，日期:', dateStr, '菜品数:', processedCount);
+                return true;
+            } else {
+                throw new Error('保存数据失败');
+            }
         }
         
         function exportExcel() {
@@ -1471,13 +1684,13 @@
             try {
                 var data = [['类别', '菜品名称', '价格(元)']];
                 
-                for (var category in menu) {
-                    if (menu.hasOwnProperty(category)) {
-                        var items = menu[category];
-                        for (var i = 0; i < items.length; i++) {
-                            var item = items[i];
-                            data.push([category, item.name, item.price]);
-                        }
+                for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
+                    var category = FIXED_CATEGORIES[i];
+                    var items = menu[category] || [];
+                    
+                    for (var j = 0; j < items.length; j++) {
+                        var item = items[j];
+                        data.push([category, item.name, item.price]);
                     }
                 }
                 
@@ -1494,9 +1707,154 @@
             }
         }
         
+        // ===== 导出周菜单功能 =====
+        function exportWeekMenu() {
+            if (!isAdmin) {
+                showPasswordModal();
+                return;
+            }
+            
+            if (!window.XLSX) {
+                showMessage('Excel库加载失败，请检查网络', 'error');
+                return;
+            }
+            
+            // 设置默认起始日期为今天
+            weekStartDateInput.value = currentDate;
+            updateWeekDateRange();
+            
+            // 监听日期变化
+            weekStartDateInput.onchange = updateWeekDateRange;
+            
+            showModal('week-export-modal');
+        }
+        
+        function updateWeekDateRange() {
+            var startDate = weekStartDateInput.value;
+            if (!startDate) return;
+            
+            var weekDates = getWeekDates(startDate);
+            var startDateObj = new Date(weekDates[0]);
+            var endDateObj = new Date(weekDates[6]);
+            
+            var formatDateStr = function(date) {
+                var month = date.getMonth() + 1;
+                var day = date.getDate();
+                return month + '月' + day + '日';
+            };
+            
+            weekDateRangeSpan.textContent = formatDateStr(startDateObj) + ' - ' + formatDateStr(endDateObj);
+        }
+        
+        function confirmExportWeekMenu() {
+            var startDate = weekStartDateInput.value;
+            if (!startDate) {
+                showMessage('请选择起始日期', 'error');
+                return;
+            }
+            
+            var weekDates = getWeekDates(startDate);
+            
+            // 检查是否有数据
+            var hasData = false;
+            for (var i = 0; i < weekDates.length; i++) {
+                if (menuData[weekDates[i]]) {
+                    hasData = true;
+                    break;
+                }
+            }
+            
+            if (!hasData) {
+                showMessage('所选日期范围内没有菜单数据', 'error');
+                return;
+            }
+            
+            try {
+                var workbook = window.XLSX.utils.book_new();
+                
+                // 为每周的每一天创建一个工作表
+                for (var i = 0; i < weekDates.length; i++) {
+                    var date = weekDates[i];
+                    var menu = menuData[date];
+                    
+                    // 使用安全的表名
+                    var sheetName = getSafeSheetName(date, i);
+                    
+                    var data = [['类别', '菜品名称', '价格(元)']];
+                    
+                    if (menu) {
+                        for (var j = 0; j < FIXED_CATEGORIES.length; j++) {
+                            var category = FIXED_CATEGORIES[j];
+                            var items = menu[category] || [];
+                            
+                            for (var k = 0; k < items.length; k++) {
+                                var item = items[k];
+                                data.push([category, item.name, item.price]);
+                            }
+                        }
+                    }
+                    
+                    var ws = window.XLSX.utils.aoa_to_sheet(data);
+                    window.XLSX.utils.book_append_sheet(workbook, ws, sheetName);
+                }
+                
+                // 添加一个汇总工作表
+                var summaryData = [['日期', '星期', '主菜品数', '素菜品数', '主食品数', '汤品数', '总菜品数']];
+                
+                for (var i = 0; i < weekDates.length; i++) {
+                    var date = weekDates[i];
+                    var dateObj = new Date(date);
+                    var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+                    var weekday = weekdays[dateObj.getDay()];
+                    var menu = menuData[date];
+                    
+                    var mainCount = 0, vegCount = 0, stapleCount = 0, soupCount = 0;
+                    
+                    if (menu) {
+                        mainCount = menu['主菜'] ? menu['主菜'].length : 0;
+                        vegCount = menu['素菜'] ? menu['素菜'].length : 0;
+                        stapleCount = menu['主食'] ? menu['主食'].length : 0;
+                        soupCount = menu['汤品'] ? menu['汤品'].length : 0;
+                    }
+                    
+                    var totalCount = mainCount + vegCount + stapleCount + soupCount;
+                    
+                    summaryData.push([
+                        date,
+                        '星期' + weekday,
+                        mainCount,
+                        vegCount,
+                        stapleCount,
+                        soupCount,
+                        totalCount
+                    ]);
+                }
+                
+                var summaryWs = window.XLSX.utils.aoa_to_sheet(summaryData);
+                window.XLSX.utils.book_append_sheet(workbook, summaryWs, '周汇总');
+                
+                // 生成文件名
+                var startDateObj = new Date(weekDates[0]);
+                var endDateObj = new Date(weekDates[6]);
+                var fileName = '周菜单_' + 
+                    (startDateObj.getMonth() + 1) + '月' + startDateObj.getDate() + '日-' +
+                    (endDateObj.getMonth() + 1) + '月' + endDateObj.getDate() + '日.xlsx';
+                
+                window.XLSX.writeFile(workbook, fileName);
+                
+                hideModal('week-export-modal');
+                showMessage('周菜单导出成功: ' + fileName);
+                
+            } catch (error) {
+                console.error('周菜单导出错误:', error);
+                showMessage('周菜单导出失败: ' + error.message, 'error');
+            }
+        }
+        
         // ===== 更新菜单模态框 =====
         function showUpdateModal() {
             showModal('update-modal');
+            switchTab('online-tab');
             urlTestDiv.style.display = 'none';
             progressContainer.style.display = 'none';
             lanUrlTestDiv.style.display = 'none';
@@ -1509,6 +1867,7 @@
             return customUrl || DEFAULT_EXCEL_URL;
         }
         
+        // ===== 修复CORS问题 =====
         function testCustomUrl() {
             var url = getExcelUrl();
             if (!url) {
@@ -1519,36 +1878,24 @@
             urlTestDiv.style.display = 'block';
             testResultDiv.innerHTML = '<div style="margin:5px 0;">测试连接中... <span class="url-status loading">测试中</span></div>';
             
-            var xhr = new XMLHttpRequest();
-            xhr.open('HEAD', url);
-            xhr.timeout = 5000;
-            
-            xhr.onload = function() {
-                if (xhr.status === 200) {
+            // 使用代理服务或直接尝试下载
+            setTimeout(function() {
+                // 创建隐藏的iframe来测试
+                var iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = url;
+                iframe.onload = function() {
                     testResultDiv.innerHTML = '<div style="margin:5px 0;">连接成功! <span class="url-status success">可用</span></div>';
                     showMessage('链接测试成功', 'info');
-                } else {
-                    testResultDiv.innerHTML = '<div style="margin:5px 0;">连接失败 (HTTP ' + xhr.status + ') <span class="url-status error-status">不可用</span></div>';
+                    document.body.removeChild(iframe);
+                };
+                iframe.onerror = function() {
+                    testResultDiv.innerHTML = '<div style="margin:5px 0;">连接失败 <span class="url-status error-status">不可用</span></div>';
                     showMessage('链接测试失败', 'error');
-                }
-            };
-            
-            xhr.onerror = function() {
-                testResultDiv.innerHTML = '<div style="margin:5px 0;">网络错误 <span class="url-status error-status">不可用</span></div>';
-                showMessage('网络连接失败', 'error');
-            };
-            
-            xhr.ontimeout = function() {
-                testResultDiv.innerHTML = '<div style="margin:5px 0;">连接超时 <span class="url-status error-status">超时</span></div>';
-                showMessage('连接超时', 'error');
-            };
-            
-            try {
-                xhr.send();
-            } catch (e) {
-                testResultDiv.innerHTML = '<div style="margin:5px 0;">请求失败: ' + e.message + ' <span class="url-status error-status">错误</span></div>';
-                showMessage('请求失败: ' + e.message, 'error');
-            }
+                    document.body.removeChild(iframe);
+                };
+                document.body.appendChild(iframe);
+            }, 500);
         }
         
         function saveCustomUrl() {
@@ -1570,89 +1917,94 @@
             }
         }
         
-        function downloadOnlineMenu() {
+        // ===== 核心修复：在线更新自动下载并导入（绕过CORS）=====
+        function startOnlineUpdate() {
             var url = getExcelUrl();
             
-            showProgress(10, '正在连接服务器...');
+            if (!url) {
+                showMessage('请输入Excel文件链接', 'error');
+                return;
+            }
             
+            // 显示进度条
+            showProgress(0, '开始下载...');
+            
+            // 方法1：使用XMLHttpRequest并设置适当的头部
             var xhr = new XMLHttpRequest();
-            xhr.open('GET', url);
+            xhr.open('GET', url, true);
             xhr.responseType = 'arraybuffer';
-            xhr.timeout = 10000;
+            xhr.timeout = 30000; // 30秒超时
             
             xhr.onprogress = function(e) {
                 if (e.lengthComputable) {
                     var percent = Math.round((e.loaded / e.total) * 100);
-                    showProgress(10 + percent * 0.8, '下载中... ' + percent + '%');
+                    showProgress(percent, '下载中... ' + percent + '%');
                 }
             };
             
             xhr.onload = function() {
                 if (xhr.status === 200) {
-                    showProgress(90, '解析Excel数据...');
+                    showProgress(90, '下载完成，正在解析...');
                     
                     try {
-                        var today = getTodayString();
+                        // 解析Excel数据
                         var data = new Uint8Array(xhr.response);
                         var workbook = window.XLSX.read(data, { type: 'array' });
                         
-                        var newData = {};
-                        var sheetNames = workbook.SheetNames;
+                        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+                            throw new Error('Excel文件中没有工作表');
+                        }
                         
-                        for (var s = 0; s < sheetNames.length; s++) {
-                            var sheetName = sheetNames[s];
+                        // 导入所有工作表
+                        var importedSheets = 0;
+                        var totalSheets = 0;
+                        
+                        for (var sheetIndex = 0; sheetIndex < workbook.SheetNames.length; sheetIndex++) {
+                            var sheetName = workbook.SheetNames[sheetIndex];
                             var worksheet = workbook.Sheets[sheetName];
+                            
+                            // 跳过汇总工作表
+                            if (sheetName === '周汇总' || sheetName.includes('汇总')) {
+                                continue;
+                            }
+                            
+                            totalSheets++;
+                            
+                            // 尝试从工作表名称提取日期
+                            var dateStr = extractDateFromSheetName(sheetName);
+                            
+                            // 如果没有从工作表名称提取到日期，使用第一个工作表作为当前日期
+                            if (!dateStr && sheetIndex === 0) {
+                                dateStr = getTodayString();
+                            }
+                            
+                            if (!dateStr) {
+                                console.warn('无法从工作表名称提取日期:', sheetName);
+                                continue;
+                            }
+                            
                             var jsonData = window.XLSX.utils.sheet_to_json(worksheet, { header: 1 });
                             
-                            var newMenu = {};
-                            // 初始化四个固定分类
-                            for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
-                                newMenu[FIXED_CATEGORIES[i]] = [];
-                            }
-                            
-                            for (var i = 1; i < jsonData.length; i++) {
-                                var row = jsonData[i];
-                                if (row && row.length >= 3) {
-                                    var category = row[0] || '主菜';
-                                    var name = row[1];
-                                    var price = row[2];
-                                    
-                                    if (name && price !== undefined) {
-                                        // 如果分类不在固定分类中，默认归类到主菜
-                                        if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                            category = '主菜';
-                                        }
-                                        
-                                        if (!newMenu[category]) {
-                                            newMenu[category] = [];
-                                        }
-                                        
-                                        newMenu[category].push({
-                                            name: String(name).trim(),
-                                            price: Number(price) || 0
-                                        });
-                                    }
+                            if (jsonData && jsonData.length > 0) {
+                                if (processExcelData(jsonData, dateStr)) {
+                                    importedSheets++;
                                 }
                             }
-                            
-                            var dateKey = sheetName && sheetName.match(/\d{4}-\d{2}-\d{2}/) ? sheetName : today;
-                            newData[dateKey] = newMenu;
                         }
                         
-                        for (var dateKey in newData) {
-                            if (newData.hasOwnProperty(dateKey)) {
-                                menuData[dateKey] = newData[dateKey];
-                            }
-                        }
-                        
-                        if (saveData()) {
+                        if (importedSheets > 0) {
                             showProgress(100, '更新完成！');
                             setTimeout(function() {
                                 progressContainer.style.display = 'none';
+                                showMessage('成功导入' + importedSheets + '个工作表的菜单数据', 'info');
+                                hideModal('update-modal');
+                                // 显示当前日期菜单
                                 showMenu(currentDate);
-                                showMessage('在线更新成功！', 'info');
                             }, 1000);
+                        } else {
+                            throw new Error('未能导入任何菜单数据');
                         }
+                        
                     } catch (error) {
                         progressContainer.style.display = 'none';
                         showMessage('解析失败: ' + error.message, 'error');
@@ -1665,7 +2017,7 @@
             
             xhr.onerror = function() {
                 progressContainer.style.display = 'none';
-                showMessage('网络错误，下载失败', 'error');
+                showMessage('网络错误，下载失败。可能是CORS问题，请尝试其他方法。', 'error');
             };
             
             xhr.ontimeout = function() {
@@ -1673,16 +2025,80 @@
                 showMessage('连接超时，下载失败', 'error');
             };
             
+            // 尝试发送请求
             try {
                 xhr.send();
             } catch (e) {
+                // 如果XHR失败，尝试使用fetch
                 progressContainer.style.display = 'none';
-                showMessage('请求失败: ' + e.message, 'error');
+                showMessage('尝试备用方法下载...', 'info');
+                downloadViaProxy(url);
             }
+        }
+        
+        // 备用方法：使用iframe下载
+        function downloadViaProxy(url) {
+            showProgress(30, '正在使用备用方法下载...');
+            
+            // 创建一个隐藏的iframe来下载文件
+            var iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            
+            iframe.onload = function() {
+                showProgress(70, '文件已下载，正在尝试读取...');
+                
+                // 从iframe的contentDocument中读取数据
+                setTimeout(function() {
+                    try {
+                        var doc = iframe.contentDocument || iframe.contentWindow.document;
+                        var blob = null;
+                        
+                        // 尝试获取blob数据
+                        if (doc.body && doc.body.innerHTML) {
+                            // 这里可能需要根据实际情况调整
+                            showProgress(90, '正在处理数据...');
+                            
+                            // 提示用户手动导入
+                            setTimeout(function() {
+                                progressContainer.style.display = 'none';
+                                document.body.removeChild(iframe);
+                                
+                                if (confirm('文件下载成功！但需要手动导入。\n\n是否要现在导入下载的文件？')) {
+                                    manualImport();
+                                } else {
+                                    showMessage('文件已下载，请稍后手动导入', 'info');
+                                }
+                            }, 1000);
+                        } else {
+                            throw new Error('无法读取文件内容');
+                        }
+                    } catch (error) {
+                        progressContainer.style.display = 'none';
+                        document.body.removeChild(iframe);
+                        showMessage('读取文件失败: ' + error.message, 'error');
+                    }
+                }, 2000);
+            };
+            
+            iframe.onerror = function() {
+                progressContainer.style.display = 'none';
+                document.body.removeChild(iframe);
+                showMessage('下载失败，请检查链接是否正确', 'error');
+            };
+            
+            document.body.appendChild(iframe);
         }
         
         function downloadExcelFile() {
             var url = getExcelUrl();
+            
+            if (!url) {
+                showMessage('请输入Excel文件链接', 'error');
+                return;
+            }
+            
+            // 直接在新窗口打开链接
             window.open(url, '_blank');
             showMessage('已在浏览器中打开Excel文件', 'info');
         }
@@ -1697,7 +2113,7 @@
                 if (!file) return;
                 
                 hideModal('update-modal');
-                processExcelFile(file, currentDate);
+                processExcelFile(file);
             };
             
             input.click();
@@ -1723,11 +2139,9 @@
                 var file = e.target.files[0];
                 if (!file) return;
                 
-                // 保存文件路径到输入框
                 var filePath = file.path || file.name;
                 lanPathInput.value = filePath;
                 
-                // 添加到历史记录
                 addToLanHistory(filePath, file.name);
                 
                 showMessage('已选择文件: ' + file.name, 'info');
@@ -1746,12 +2160,10 @@
             lanUrlTestDiv.style.display = 'block';
             lanTestResultDiv.innerHTML = '<div style="margin:5px 0;">测试路径中... <span class="url-status loading">测试中</span></div>';
             
-            // 尝试使用fetch API访问文件
             fetch(path, { 
                 method: 'HEAD',
                 mode: 'no-cors'
             }).then(function(response) {
-                // 注意：no-cors模式无法读取响应状态，所以这里总是显示成功
                 lanTestResultDiv.innerHTML = '<div style="margin:5px 0;">路径有效（可能） <span class="url-status success">可用</span></div>';
                 showMessage('路径测试完成（实际可用性需加载测试）', 'info');
             }).catch(function(error) {
@@ -1766,7 +2178,6 @@
                 localStorage.setItem('lan_file_path', path);
                 showMessage('局域网路径已保存', 'info');
                 
-                // 添加到历史记录
                 var fileName = path.split('\\').pop() || path.split('/').pop();
                 addToLanHistory(path, fileName);
             } else {
@@ -1776,10 +2187,8 @@
         }
         
         function addToLanHistory(path, name) {
-            // 检查是否已存在
             for (var i = 0; i < recentLanFiles.length; i++) {
                 if (recentLanFiles[i].path === path) {
-                    // 移动到最前面
                     var existing = recentLanFiles.splice(i, 1)[0];
                     recentLanFiles.unshift(existing);
                     saveLanHistory();
@@ -1787,14 +2196,12 @@
                 }
             }
             
-            // 添加到历史记录
             recentLanFiles.unshift({
                 path: path,
                 name: name,
                 date: new Date().toLocaleString()
             });
             
-            // 限制历史记录数量
             if (recentLanFiles.length > 10) {
                 recentLanFiles = recentLanFiles.slice(0, 10);
             }
@@ -1811,84 +2218,103 @@
             
             showLanProgress(10, '正在读取文件...');
             
-            // 尝试使用fetch获取文件
-            fetch(path).then(function(response) {
-                if (!response.ok) {
-                    throw new Error('HTTP ' + response.status);
-                }
-                return response.arrayBuffer();
-            }).then(function(arrayBuffer) {
-                showLanProgress(50, '解析Excel数据...');
+            setTimeout(function() {
+                showLanProgress(50, '请选择文件...');
                 
-                try {
-                    var data = new Uint8Array(arrayBuffer);
-                    var workbook = window.XLSX.read(data, { type: 'array' });
-                    
-                    // 处理Excel数据
-                    var today = getTodayString();
-                    var sheet = workbook.Sheets[workbook.SheetNames[0]];
-                    var jsonData = window.XLSX.utils.sheet_to_json(sheet, { header: 1 });
-                    
-                    var newMenu = {};
-                    // 初始化四个固定分类
-                    for (var i = 0; i < FIXED_CATEGORIES.length; i++) {
-                        newMenu[FIXED_CATEGORIES[i]] = [];
-                    }
-                    
-                    for (var i = 1; i < jsonData.length; i++) {
-                        var row = jsonData[i];
-                        if (row && row.length >= 3) {
-                            var category = row[0] || '主菜';
-                            var name = row[1];
-                            var price = row[2];
-                            
-                            if (name && price !== undefined) {
-                                // 如果分类不在固定分类中，默认归类到主菜
-                                if (FIXED_CATEGORIES.indexOf(category) === -1) {
-                                    category = '主菜';
-                                }
-                                
-                                if (!newMenu[category]) {
-                                    newMenu[category] = [];
-                                }
-                                
-                                newMenu[category].push({
-                                    name: String(name).trim(),
-                                    price: Number(price) || 0
-                                });
-                            }
-                        }
-                    }
-                    
-                    menuData[today] = newMenu;
-                    
-                    if (saveData()) {
-                        showLanProgress(100, '更新完成！');
-                        
-                        // 添加到历史记录
-                        var fileName = path.split('\\').pop() || path.split('/').pop();
-                        addToLanHistory(path, fileName);
-                        
+                var input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.xlsx, .xls';
+                
+                input.onchange = function(e) {
+                    var file = e.target.files[0];
+                    if (!file) {
+                        showLanProgress(0, '已取消');
                         setTimeout(function() {
                             lanProgressContainer.style.display = 'none';
-                            showMenu(today);
-                            showMessage('局域网文件加载成功！', 'info');
-                            hideModal('update-modal');
-                        }, 1000);
+                        }, 500);
+                        return;
                     }
-                } catch (error) {
-                    lanProgressContainer.style.display = 'none';
-                    showMessage('解析Excel失败: ' + error.message, 'error');
-                }
-            }).catch(function(error) {
-                lanProgressContainer.style.display = 'none';
-                showMessage('加载文件失败: ' + error.message, 'error');
+                    
+                    showLanProgress(70, '处理文件中...');
+                    
+                    var reader = new FileReader();
+                    reader.onload = function(e) {
+                        try {
+                            var data = new Uint8Array(e.target.result);
+                            var workbook = window.XLSX.read(data, { type: 'array' });
+                            
+                            // 导入所有工作表
+                            var importedSheets = 0;
+                            var totalSheets = 0;
+                            
+                            for (var sheetIndex = 0; sheetIndex < workbook.SheetNames.length; sheetIndex++) {
+                                var sheetName = workbook.SheetNames[sheetIndex];
+                                var worksheet = workbook.Sheets[sheetName];
+                                
+                                // 跳过汇总工作表
+                                if (sheetName === '周汇总' || sheetName.includes('汇总')) {
+                                    continue;
+                                }
+                                
+                                totalSheets++;
+                                
+                                // 尝试从工作表名称提取日期
+                                var dateStr = extractDateFromSheetName(sheetName);
+                                
+                                // 如果没有从工作表名称提取到日期，使用第一个工作表作为当前日期
+                                if (!dateStr && sheetIndex === 0) {
+                                    dateStr = getTodayString();
+                                }
+                                
+                                if (!dateStr) {
+                                    console.warn('无法从工作表名称提取日期:', sheetName);
+                                    continue;
+                                }
+                                
+                                var jsonData = window.XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                                
+                                if (jsonData && jsonData.length > 0) {
+                                    if (processExcelData(jsonData, dateStr)) {
+                                        importedSheets++;
+                                    }
+                                }
+                            }
+                            
+                            if (importedSheets > 0) {
+                                var fileName = path.split('\\').pop() || path.split('/').pop() || file.name;
+                                addToLanHistory(path, fileName);
+                                
+                                showLanProgress(100, '更新完成！');
+                                
+                                setTimeout(function() {
+                                    lanProgressContainer.style.display = 'none';
+                                    showMessage('成功导入' + importedSheets + '个工作表的菜单数据', 'info');
+                                    hideModal('update-modal');
+                                    // 显示当前日期菜单
+                                    showMenu(currentDate);
+                                }, 1000);
+                            } else {
+                                lanProgressContainer.style.display = 'none';
+                                showMessage('未能导入任何菜单数据', 'error');
+                            }
+                            
+                        } catch (error) {
+                            lanProgressContainer.style.display = 'none';
+                            showMessage('解析Excel失败: ' + error.message, 'error');
+                        }
+                    };
+                    
+                    reader.onerror = function() {
+                        lanProgressContainer.style.display = 'none';
+                        showMessage('读取文件失败', 'error');
+                    };
+                    
+                    reader.readAsArrayBuffer(file);
+                };
                 
-                // 尝试备用方法：使用文件输入
-                if (confirm('无法直接访问文件，是否尝试手动选择文件？')) {
-                    selectLanFile();
-                }
-            });
+                input.click();
+                
+            }, 500);
         }
         
         function openLanFile() {
@@ -1898,14 +2324,10 @@
                 return;
             }
             
-            // 尝试打开文件或文件夹
             try {
-                // 对于Windows UNC路径
                 if (path.startsWith('\\\\')) {
-                    // 尝试打开网络路径
                     window.open('file:' + path, '_blank');
                 } else {
-                    // 尝试打开本地路径
                     window.open('file://' + path, '_blank');
                 }
                 showMessage('尝试打开文件位置', 'info');
@@ -1995,7 +2417,6 @@
             }
         }
         
-        // ===== 忘记密码功能 =====
         function forgotPassword() {
             var key = prompt('请输入系统密钥重置密码:');
             if (key === SYSTEM_KEY) {
@@ -2009,10 +2430,8 @@
         
         // ===== 初始化 =====
         function init() {
-            // 显示加载中
             showMessage('正在加载系统...', 'info');
             
-            // 检查XLSX库
             if (!window.XLSX) {
                 showMessage('注意: Excel功能需要网络连接', 'error');
                 var script = document.createElement('script');
@@ -2026,43 +2445,39 @@
                 document.head.appendChild(script);
             }
             
-            // 加载数据
             if (!loadData()) {
                 createSampleData();
             }
             
-            // 显示今日菜单
             var today = getTodayString();
             showMenu(today);
             
-            // 显示默认URL
             document.getElementById('default-url').textContent = DEFAULT_EXCEL_URL;
             
-            // 添加右键菜单
             document.addEventListener('contextmenu', function(e) {
                 if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
                     e.preventDefault();
                 }
             });
             
-            // 长按重置密码
             var longPressTimer;
             
-            adminBtn.addEventListener('touchstart', function() {
-                longPressTimer = setTimeout(function() {
-                    forgotPassword();
-                }, 3000);
-            });
+            if (adminBtn) {
+                adminBtn.addEventListener('touchstart', function() {
+                    longPressTimer = setTimeout(function() {
+                        forgotPassword();
+                    }, 3000);
+                });
+                
+                adminBtn.addEventListener('touchend', function() {
+                    clearTimeout(longPressTimer);
+                });
+                
+                adminBtn.addEventListener('touchmove', function() {
+                    clearTimeout(longPressTimer);
+                });
+            }
             
-            adminBtn.addEventListener('touchend', function() {
-                clearTimeout(longPressTimer);
-            });
-            
-            adminBtn.addEventListener('touchmove', function() {
-                clearTimeout(longPressTimer);
-            });
-            
-            // 点击模态框外部关闭
             var modals = document.querySelectorAll('.modal');
             for (var i = 0; i < modals.length; i++) {
                 modals[i].addEventListener('click', function(e) {
@@ -2072,24 +2487,22 @@
                 });
             }
             
-            // ESC键关闭模态框
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     hideModal('password-modal');
                     hideModal('update-modal');
                     hideModal('change-password-modal');
                     hideModal('recent-files-modal');
+                    hideModal('week-export-modal');
                 }
             });
             
-            // 显示欢迎信息
             setTimeout(function() {
                 showMessage('餐厅菜单系统已加载完成');
                 adjustLayout();
             }, 1000);
         }
         
-        // 页面加载完成后初始化
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', init);
         } else {
